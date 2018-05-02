@@ -12,26 +12,26 @@ $bankin = new Bankin();
 
 $email = isset($_GET['email']) ? $_GET['email'] : '';
 $password = isset($_GET['password']) ? $_GET['password'] : '';
+$action = isset($_GET['action']) ? $_GET['action'] : '';;
 
 //if (!isset($_SESSION['email']) && !isset($_SESSION['password'])) {
 //
 //} else {
 
-if (isset($_GET['action_create'])) {
+if ($action == 'create') {
     $addUser = $bankin->addUser($email, $password);
     echo "<br/>AddUser. ";
-    if(isset($addUser->message)) echo "<em>$addUser->message / $addUser->type</em>";
+    if (isset($addUser->message)) echo "<em>$addUser->message / $addUser->type</em>";
 
     if (isset($addUser->uuid) || (isset($addUser->type) && $addUser->type == 'conflict')) {
         echo "<br/>Authenticate. ";
         $auth = $bankin->authenticate($email, $password);
-        if(isset($auth->type)) {
+        if (isset($auth->type)) {
             echo "<em>$auth->message / $auth->type</em>";
-        }
-        else {
+        } else {
             echo "<br/>Get bankin url to connect with bank. ";
             $url = $bankin->addUrl($email, $password);
-            if(isset($url->message)) echo "<em>$url->message / $url->type</em>";
+            if (isset($url->message)) echo "<em>$url->message / $url->type</em>";
 
             $_SESSION['email'] = $email;
             $_SESSION['password'] = $password;
@@ -39,12 +39,11 @@ if (isset($_GET['action_create'])) {
     } else {
 
     }
-} else if (isset($_GET['action_login'])) {
+} else if ($action == 'login') {
     $auth = $bankin->authenticate($email, $password);
     if (isset($auth->type)) {
-        echo 'cannot login: '.$auth->message.' / '.  $auth->type;
-    }
-    else {
+        echo 'cannot login: ' . $auth->message . ' / ' . $auth->type;
+    } else {
         echo 'login successfully';
         $_SESSION['email'] = $email;
         $_SESSION['password'] = $password;
@@ -53,14 +52,24 @@ if (isset($_GET['action_create'])) {
 }
 
 ?>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 
 <?php if (isset($url->redirect_url)) { ?>
     <a href="<?= $url->redirect_url ?>">Connect bank account</a>. Then go back to home: <a href="/">Home</a>
 <?php } ?>
 
 <form action="?action=create" method="GET">
-    email: <input type="email" name="email" value="<?= $email ?>"><br/>
-    password: <input type="password" name="password" value="<?= $password ?>"><br/>
-    <input type="submit" name="action_create" value="Create User">
-    <input type="submit" name="action_login" value="Login">
+    <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" class="form-control" value="<?= $email ?>">
+    </div>
+    <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" class="form-control" value="<?= $password ?>">
+        <small class="form-text text-muted">Password to use that tool</small>
+    </div>
+    </div>
+    <button type="submit" class="btn btn-primary" name="action" value="create">Add User</button>
+    <button type="submit" class="btn btn-primary" name="action" value="login">Login</button>
 </form>

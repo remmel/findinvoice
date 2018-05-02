@@ -30,8 +30,8 @@ class Main {
         $filesFolder = self::getFolder($month);
         $assocFiles = [];
         foreach ($files as $file) {
-            $file = pathinfo($file, PATHINFO_FILENAME);
-            $parts = explode('_', $file);
+            $fileWithoutExt = pathinfo($file, PATHINFO_FILENAME);
+            $parts = explode('_', $fileWithoutExt);
             $key = $parts[0] . '_' . $parts[2];
             $assocFiles[$key] = $file;
         }
@@ -82,6 +82,11 @@ class Main {
                 die('error uploading the file' . var_dump($_FILES + $_POST));
             }
         }
+    }
+
+    public function removeFile(\DateTime $month, $filename){
+        $dir = self::getFolder($month);
+        unlink($dir.$filename);
     }
 
     public static function filename($t, $info = '') {

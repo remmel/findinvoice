@@ -12,6 +12,8 @@ $bankin = new Bankin();
 $main = new Main();
 
 
+$action = isset($_POST['action'])?$_POST['action']:'';
+
 //has account
 if (!isset($_SESSION['email']) && !isset($_SESSION['password'])) {
     header('Location: user.php');
@@ -19,14 +21,17 @@ if (!isset($_SESSION['email']) && !isset($_SESSION['password'])) {
 
 $month = $main->selectedMonth($_GET['month']);
 $months = $main->listMonths();
-
-$main->handleUpload($month);
+if($action == 'upload') {
+    $main->handleUpload($month);
+} elseif ($action == 'delete') {
+    $main->removeFile($month, $_POST['fn']);
+}
 
 $transactions = Main::reconciliation($bankin, $month);
-
 ?>
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 
 <form method="get">
     Month : <select name="month" onchange="this.form.submit()">
@@ -40,34 +45,40 @@ $transactions = Main::reconciliation($bankin, $month);
 </form>
 
 <?php if ($transactions) { ?>
-    <table border="1">
+    <table class="table">
         <thead>
-        <td>id</td>
-        <td>date</td>
-        <td>description</td>
-        <td>amount</td>
-        <td>currency_code</td>
-        <td>upload</td>
-        <td>doc</td>
+        <tr>
+            <th>id</th>
+            <th>date</th>
+            <th>description</th>
+            <th>amount</th>
+            <th>currency</th>
+            <th>doc</th>
+        </tr>
         </thead>
         <tbody>
         <?php foreach ($transactions as $t) { ?>
             <tr>
                 <td><?= $t->id ?></td>
-                <td><?= $t->date ?></td>
+                <td style="display: overflow:hidden; white-space: nowrap;"><?= $t->date ?></td>
                 <td><?= $t->description ?></td>
                 <td bgcolor="<?= $t->amount > 0 ? "green" : "red" ?>"><?= $t->amount ?></td>
                 <td><?= $t->currency ?></td>
-                <td><?= $t->upload ?></td>
                 <td>
                     <?php if ($t->doc) { ?>
                         <a target="_blank" href="<?= $t->doclink ?>"><?= $t->doc ?></a>
+                        <form method="post" style="display: inline-block" >
+                            <input type="hidden" name="fn" value="<?= $t->doc ?>"/>
+                            <button type="submit" name="action" value="delete">
+                                <span>&times;</span>
+                            </button>
+                        </form>
                     <?php } else { ?>
                         <form method="post" enctype="multipart/form-data" class="upload">
                             <input type="file" name="receipt"/>
                             <input type="hidden" name="fn" value="<?= $t->upload ?>"/>
                             <input type="text" name="comment" value=""/>
-                            <input type="submit" name="submit"/>
+                            <button type="submit" name="submit" name="action" value="upload">Upload</button></form>
                         </form>
                     <?php } ?>
                 </td>
