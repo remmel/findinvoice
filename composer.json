@@ -1,0 +1,17 @@
+{
+    "name": "remmel/findinvoice",
+    "description": "Find invoice easily",
+    "type": "project",
+    "authors": [
+        {
+            "name": "remmel",
+            "email": "remy.mellet@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-0": {
+            "": "src/"
+        }
+    }
+}
