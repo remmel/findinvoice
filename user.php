@@ -6,7 +6,6 @@ else require_once __DIR__ . '/parameters.dumb.php';
 session_start();
 
 use Main\Bankin;
-use Main\Main;
 
 $bankin = new Bankin();
 
@@ -52,8 +51,7 @@ if ($action == 'create') {
 }
 
 ?>
-<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<?php include "tpl_header.html" ?>
 
 <?php if (isset($url->redirect_url)) { ?>
     <a href="<?= $url->redirect_url ?>">Connect bank account</a>. Then go back to home: <a href="/">Home</a>

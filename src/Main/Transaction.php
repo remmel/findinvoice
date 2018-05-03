@@ -17,4 +17,6 @@ class Transaction {
     public $upload;
     public $doc;
     public $doclink;
+    /** @var To easily find the invoice */
+    public $helplink;
 }

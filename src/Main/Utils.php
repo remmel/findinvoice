@@ -33,4 +33,16 @@ class Utils {
 
         return $content;
     }
+
+    public static function contains($haystack, $needle) {
+        return strpos($haystack, $needle) !== false;
+    }
+
+    /**
+     * Removes special characters and underscore to be able to get a nice filename
+     * Underscore is removed because used by that tool to codify invoices
+     */
+    public static function cleanNameToFilename($s){
+        return str_replace(['/', '_',], ['-', '-'], $s);
+    }
 }

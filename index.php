@@ -14,7 +14,7 @@ $main = new Main();
 
 $action = isset($_POST['action'])?$_POST['action']:'';
 
-//has account
+//is not logged
 if (!isset($_SESSION['email']) && !isset($_SESSION['password'])) {
     header('Location: user.php');
 }
@@ -28,11 +28,10 @@ if($action == 'upload') {
 }
 
 $transactions = Main::reconciliation($bankin, $month);
+
 ?>
 
-<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-
+<?php include "tpl_header.html" ?>
 <form method="get">
     Month : <select name="month" onchange="this.form.submit()">
         <?php foreach ($months as $m) { ?>
@@ -48,23 +47,19 @@ $transactions = Main::reconciliation($bankin, $month);
     <table class="table">
         <thead>
         <tr>
-            <th>id</th>
             <th>date</th>
             <th>description</th>
             <th>amount</th>
-            <th>currency</th>
             <th>doc</th>
         </tr>
         </thead>
         <tbody>
         <?php foreach ($transactions as $t) { ?>
             <tr>
-                <td><?= $t->id ?></td>
                 <td style="display: overflow:hidden; white-space: nowrap;"><?= $t->date ?></td>
                 <td><?= $t->description ?></td>
                 <td bgcolor="<?= $t->amount > 0 ? "green" : "red" ?>"><?= $t->amount ?></td>
-                <td><?= $t->currency ?></td>
-                <td>
+                <td bgcolor="<?= $t->doc ? "" : "red" ?>">
                     <?php if ($t->doc) { ?>
                         <a target="_blank" href="<?= $t->doclink ?>"><?= $t->doc ?></a>
                         <form method="post" style="display: inline-block" >
@@ -74,11 +69,21 @@ $transactions = Main::reconciliation($bankin, $month);
                             </button>
                         </form>
                     <?php } else { ?>
+                        <?php if ($t->helplink) { ?>
+                            <a target="_blank" href="<?= $t->helplink ?>">Help</a>
+                        <?php } ?>
                         <form method="post" enctype="multipart/form-data" class="upload">
-                            <input type="file" name="receipt"/>
+
+                            <input type="file" name="receipt"/><br />
+                            <div class="input-group mb-3" style="width: 300px">
+                                <input type="text" class="form-control" placeholder="comment" name="comment" value="">
+                                <div class="input-group-append">
+                                    <button type="submit" class="btn btn-outline-secondary" type="button">✔</button>
+                                </div>
+                            </div>
+
                             <input type="hidden" name="fn" value="<?= $t->upload ?>"/>
-                            <input type="text" name="comment" value=""/>
-                            <button type="submit" name="submit" name="action" value="upload">Upload</button></form>
+                            <input type="hidden" name="action" value="upload"/>
                         </form>
                     <?php } ?>
                 </td>
@@ -93,6 +98,8 @@ $transactions = Main::reconciliation($bankin, $month);
     $('.upload input[name=receipt]').change(function (e) {
         var fn = this.value;
         fn = fn.substring(fn.lastIndexOf('\\') + 1, fn.lastIndexOf('.'));
-        $(this).parent().find("input[name=comment]").val(fn);
+        $comment =  $(this).parent().find("input[name=comment]");
+        $comment.val(fn);
+        $comment.select();
     });
 </script>
