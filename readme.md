@@ -6,7 +6,7 @@ Tool to facilite the collect of invoice (bank reconciliation).
 
 checkout
 composer
-run php server : php -S localhost:8000
+run php server : php -S localhost:8000  
 configure parameters.dumb.php
 
 ## Structure

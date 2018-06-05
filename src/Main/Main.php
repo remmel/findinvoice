@@ -27,7 +27,8 @@ class Main {
         'Adobe Stock' => 'https://accounts.adobe.com/plans/',
         'Bap Link' => 'https://poissonniers.espace.link/gestion/factures/recurrentes',
         'Lespace - Poissonnie' => 'https://poissonniers.espace.link/gestion/depot-de-garantie',
-        'Fiverr' => 'https://mail.google.com/mail/u/1/#search/from%3A(invoices%40fiverr.com)'
+        'Fiverr' => 'https://mail.google.com/mail/u/1/#search/from%3A(invoices%40fiverr.com)',
+        'Scaleway' => 'https://cloud.scaleway.com/#/billing'
     ];
 
 //    /** @var Bankin */
@@ -50,7 +51,8 @@ class Main {
             $fileWithoutExt = pathinfo($file, PATHINFO_FILENAME);
             $parts = explode('_', $fileWithoutExt);
             $key = $parts[0] . '_' . $parts[2];
-            $assocFiles[$key] = $file;
+            if(!isset($assocFiles[$key])) $assocFiles[$key] = [];
+            $assocFiles[$key][] = $file;
         }
 
         /** @var Transaction[] $transactions */
@@ -66,11 +68,10 @@ class Main {
 
             $key = $t->date . '_' . number_format(abs($t->amount), 2,'.', '');
 
-            if (isset($assocFiles[$key])) {
-                $filename = $assocFiles[$key];
+            if (isset($assocFiles[$key]) && count($assocFiles[$key]) > 0) {
+                $filename = array_shift($assocFiles[$key]);
                 $t->doc = $filename;
                 $t->doclink = 'file:' . $filesFolder . $assocFiles[$key];
-                unset($assocFiles[$key]);
             } else {
                 //if not document uploaded, display some help to find that doc
                 $t->helplink = self::findHelp($bt->raw_description);
