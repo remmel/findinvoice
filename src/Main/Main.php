@@ -11,6 +11,8 @@ namespace Main;
 use DateInterval;
 use DatePeriod;
 use DateTime;
+use Google_Client;
+use Google_Service_Drive;
 
 class Main {
     const HELP = [
@@ -44,7 +46,7 @@ class Main {
      */
     public function reconciliation(Bankin $bankin, \DateTime $month) {
         $btransactions = $bankin->transactions($_SESSION['email'], $_SESSION['password'], $month);
-        $files = self::files($month);
+        $files = self::filesFilesystem($month);
         $filesFolder = self::getFolder($month);
         $assocFiles = [];
         foreach ($files as $file) {
@@ -135,9 +137,55 @@ class Main {
     /**
      * List files
      */
-    public static function files(\DateTime $date) {
+    public static function filesFilesystem(\DateTime $date) {
         $folder = self::getFolder($date);
         return scandir($folder);
+    }
+
+    /**
+     * List files from Google Drive Account
+     * 1) Search for folder with specific month (eg named '2018-05') in folder defined in parameters
+     * 2) List files into that subfolder
+     */
+    public static function filesGdrive(\DateTime $date, $accessToken) {
+        $month = $date->format('Y-m');
+
+        $client = new Google_Client();
+        $client->setAuthConfig('client_secrets.json');
+        $client->addScope(Google_Service_Drive::DRIVE_METADATA_READONLY);
+
+        $client->setAccessToken($accessToken);
+        $drive = new Google_Service_Drive($client);
+
+        $folderIdAchat = DOCUMENTS_FOLDER_GDRIVE;
+
+        $gfiles = $drive->files->listFiles([
+            "q" => "'$folderIdAchat' in parents and trashed=false",
+            'pageSize' => 1000
+        ]);
+
+        $files = [];
+
+        $folderIdMonth = null;
+
+        foreach ($gfiles as $f)
+            if($f->name == $month)
+                $folderIdMonth = $f->id;
+
+        if($folderIdMonth === null) throw new \Exception("folder $month not found in parent folder $folderIdAchat");
+
+        $gfiles = $drive->files->listFiles([
+            "q" => "'$folderIdMonth' in parents and trashed=false",
+            'pageSize' => 1000
+        ]);
+
+        foreach ($gfiles as $f) {
+            $files[] = [
+                $f->name,
+                $f->id
+            ];
+        }
+        return $files;
     }
 
     /**

@@ -1,8 +1,7 @@
 <?php
 
 require_once __DIR__ . '/vendor/autoload.php';
-if (file_exists(__DIR__ . '/parameters.php')) require_once __DIR__ . '/parameters.php';
-else require_once __DIR__ . '/parameters.dumb.php';
+require_once file_exists(__DIR__ . '/parameters.php') ? __DIR__ . '/parameters.php' : __DIR__ . '/parameters.dumb.php';
 session_start();
 
 use Main\Bankin;
