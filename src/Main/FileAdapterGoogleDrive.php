@@ -16,23 +16,62 @@ class FileAdapterGoogleDrive implements IFileAdapter {
 
     protected $rootFolder;
     protected $accessToken;
+    protected $client;
+    protected $drive;
 
     public function __construct($rootFolder, $accessToken) {
         $this->rootFolder = $rootFolder;
         $this->accessToken = $accessToken;
+
+        $this->client = new Google_Client();
+        $this->client->setAuthConfig('client_secrets.json');
+//        $this->client->addScope(Google_Service_Drive::DRIVE_METADATA_READONLY);
+        $this->client->setAccessType('offline');
+        $this->client->setRedirectUri('http://' . $_SERVER['HTTP_HOST'] . '/oauth2callback.php');
+        if ($this->accessToken)
+            $this->client->setAccessToken($this->accessToken);
+        $this->drive = new Google_Service_Drive($this->client);
+    }
+
+    public function authenticateIfNeeded() {
+
+        //1st conection
+        if ($this->accessToken === null) {
+            $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . '/oauth2callback.php';
+            header('Location: ' . filter_var($redirect_uri, FILTER_SANITIZE_URL));
+
+
+            $this->client->setRedirectUri('http://' . $_SERVER['HTTP_HOST'] . '/oauth2callback.php');
+            $this->client->addScope([
+                Google_Service_Drive::DRIVE
+            ]);
+
+            header('Location: ' . filter_var($this->client->createAuthUrl(), FILTER_SANITIZE_URL));
+        } else {
+            if ($this->client->isAccessTokenExpired()) {
+                die("expired");
+//        print_r($accessToken);
+//        $to = $client->refreshToken($accessToken->access_token);
+            }
+
+        }
+
+    }
+
+    public function authenticateCallback($code) {
+        $this->client->authenticate($code);
+        return $this->client->getAccessToken();
+    }
+
+    public function revoke() {
+        print_r($this->client->getAccessToken());
+        return $this->client->revokeToken();
     }
 
     protected function getSubfolder(\DateTime $date) {
         $month = $date->format('Y-m');
 
-        $client = new Google_Client();
-        $client->setAuthConfig('client_secrets.json');
-        $client->addScope(Google_Service_Drive::DRIVE_METADATA_READONLY);
-
-        $client->setAccessToken($this->accessToken);
-        $drive = new Google_Service_Drive($client);
-
-        $gfiles = $drive->files->listFiles([
+        $gfiles = $this->drive->files->listFiles([
             "q" => "'$this->rootFolder' in parents and trashed=false",
             'pageSize' => 1000
         ]);
@@ -54,16 +93,9 @@ class FileAdapterGoogleDrive implements IFileAdapter {
      * 2) List files into that subfolder
      */
     public function files(\DateTime $date) {
-        $client = new Google_Client();
-        $client->setAuthConfig('client_secrets.json');
-        $client->addScope(Google_Service_Drive::DRIVE_METADATA_READONLY);
-
-        $client->setAccessToken($this->accessToken);
-        $drive = new Google_Service_Drive($client);
-
         $folderIdMonth = $this->getSubfolder($date);
 
-        $gfiles = $drive->files->listFiles([
+        $gfiles = $this->drive->files->listFiles([
             "q" => "'$folderIdMonth' in parents and trashed=false",
             'pageSize' => 1000
         ]);
@@ -88,14 +120,9 @@ class FileAdapterGoogleDrive implements IFileAdapter {
      * @return mixed
      */
     public function upload(\DateTime $month, $tmp, $newName) {
-        $client = new Google_Client();
-        $client->setAuthConfig('client_secrets.json');
-        $client->addScope(Google_Service_Drive::DRIVE);
-
-        $client->setAccessToken($this->accessToken);
-        $drive = new Google_Service_Drive($client);
-
         $folderIdMonth = $this->getSubfolder($month);
+
+        $this->client->addScope(Google_Service_Drive::DRIVE);
 
         $fileMetadata = new Google_Service_Drive_DriveFile([
             'name' => $newName,
@@ -103,7 +130,7 @@ class FileAdapterGoogleDrive implements IFileAdapter {
         ]);
         $content = file_get_contents($tmp);
         $mimetype = mime_content_type($tmp);
-        $file = $drive->files->create($fileMetadata, array(
+        $file = $this->drive->files->create($fileMetadata, array(
             'data' => $content,
             'mimeType' => $mimetype,
             'uploadType' => 'multipart',
@@ -115,12 +142,7 @@ class FileAdapterGoogleDrive implements IFileAdapter {
      * Remove a file
      */
     public function remove($fId) {
-        $client = new Google_Client();
-        $client->setAuthConfig('client_secrets.json');
-        $client->addScope(Google_Service_Drive::DRIVE);
-        $client->setAccessType('offline');
-        $client->setAccessToken($this->accessToken);
-        $drive = new Google_Service_Drive($client);
-        $drive->files->delete($fId);
+        $this->client->addScope(Google_Service_Drive::DRIVE);
+        $this->drive->files->delete($fId);
     }
 }

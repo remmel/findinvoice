@@ -10,6 +10,8 @@ use Main\Main;
 $bankin = new Bankin();
 
 $fileAdapter = new \Main\FileAdapterGoogleDrive(DOCUMENTS_FOLDER_GDRIVE, $_SESSION['access_token']);
+$fileAdapter->authenticateIfNeeded();
+
 //$fileAdapter = new \Main\FileAdapterFilesystem(DOCUMENTS_FOLDER);
 
 $main = new Main($fileAdapter);

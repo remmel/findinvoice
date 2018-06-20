@@ -10,18 +10,18 @@ $bankin = new Bankin();
 
 $email = isset($_GET['email']) ? $_GET['email'] : '';
 $password = isset($_GET['password']) ? $_GET['password'] : '';
-$action = isset($_GET['action']) ? $_GET['action'] : '';;
+$action = isset($_GET['action']) ? $_GET['action'] : '';
 
 //if (!isset($_SESSION['email']) && !isset($_SESSION['password'])) {
 //
 //} else {
 
-if ($action == 'create') {
+if ($action === 'create') {
     $addUser = $bankin->addUser($email, $password);
     echo "<br/>AddUser. ";
     if (isset($addUser->message)) echo "<em>$addUser->message / $addUser->type</em>";
 
-    if (isset($addUser->uuid) || (isset($addUser->type) && $addUser->type == 'conflict')) {
+    if (isset($addUser->uuid) || (isset($addUser->type) && $addUser->type === 'conflict')) {
         echo "<br/>Authenticate. ";
         $auth = $bankin->authenticate($email, $password);
         if (isset($auth->type)) {
@@ -37,7 +37,7 @@ if ($action == 'create') {
     } else {
 
     }
-} else if ($action == 'login') {
+} else if ($action === 'login') {
     $auth = $bankin->authenticate($email, $password);
     if (isset($auth->type)) {
         echo 'cannot login: ' . $auth->message . ' / ' . $auth->type;
@@ -47,6 +47,9 @@ if ($action == 'create') {
         $_SESSION['password'] = $password;
         header('Location: /');
     }
+} else if ($action === 'logout') {
+    unset($_SESSION['email']);
+    unset($_SESSION['password']);
 }
 
 ?>
@@ -56,6 +59,8 @@ if ($action == 'create') {
     <a href="<?= $url->redirect_url ?>">Connect bank account</a>. Then go back to home: <a href="/">Home</a>
 <?php } ?>
 
+Login or Create account to Bankin.<br />
+Bankin is a tool to be able to extract report from your bank account
 <form action="?action=create" method="GET">
     <div class="form-group">
         <label>Email</label>
