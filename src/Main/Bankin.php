@@ -8,8 +8,10 @@
 namespace Main;
 
 
-class Bankin {
+class Bankin implements IBank {
     protected $token = null;
+    protected $email = null;
+    protected $password = null;
 
     //todo put into cache
     protected function getToken($email, $password) {
@@ -18,6 +20,11 @@ class Bankin {
             $this->token = $auth->access_token;
         }
         return $this->token;
+    }
+
+    public function __construct() {
+        $this->email = $_SESSION['email'];
+        $this->password = $_SESSION['password'];
     }
 
     /**
@@ -90,8 +97,11 @@ class Bankin {
         return json_decode($content)->resources;
     }
 
-    public function transactions($client, $password, \DateTime $month) {
-        $token = $this->getToken($client, $password);
+    /**
+     * @inheritdoc
+     */
+    public function transactions(\DateTime $month) {
+        $token = $this->getToken($this->email, $this->password);
         $content = Utils::curl([
             CURLOPT_URL => "https://sync.bankin.com/v2/transactions?" . http_build_query([
                     'since' => $month->format('Y-m-d'),
@@ -103,6 +113,19 @@ class Bankin {
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER => ["Bankin-Version: 2016-01-18", "Authorization: Bearer $token"]
         ]);
-        return array_reverse(json_decode($content)->resources);
+        $btransactions = array_reverse(json_decode($content)->resources);
+
+        $oTransactions = [];
+        foreach ($btransactions as $bt) {
+            $t = new Transaction();
+            $t->id = $bt->id;
+            $t->date = $bt->date;
+            $t->description = $bt->raw_description;
+            $t->amount = $bt->amount;
+            $t->currency = $bt->currency_code;
+
+            $oTransactions[] = $t;
+        }
+        return $oTransactions;
     }
 }

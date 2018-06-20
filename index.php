@@ -8,7 +8,11 @@ use Main\Bankin;
 use Main\Main;
 
 $bankin = new Bankin();
-$main = new Main();
+
+$fileAdapter = new \Main\FileAdapterGoogleDrive(DOCUMENTS_FOLDER_GDRIVE, $_SESSION['access_token']);
+//$fileAdapter = new \Main\FileAdapterFilesystem(DOCUMENTS_FOLDER);
+
+$main = new Main($fileAdapter);
 
 
 $action = isset($_POST['action'])?$_POST['action']:'';
@@ -23,33 +27,25 @@ $months = $main->listMonths();
 if($action == 'upload') {
     $main->handleUpload($month);
 } elseif ($action == 'delete') {
-    $main->removeFilesystem($_POST['id']);
+    $fileAdapter->remove($_POST['id']);
 }
 
-$transactions = Main::reconciliation($bankin, $month);
+list($transactions, $orphanFiles) = $main->reconciliation($bankin, $month);
 
 ?>
 
 <?php include "tpl_header.html" ?>
-<form method="get">
-    Month : <select name="month" onchange="this.form.submit()">
-        <?php foreach ($months as $m) { ?>
-            <option value="<?= $m ?>" <?= $m == $month->format('Y-m') ? 'selected' : '' ?>>
-                <?= $m ?>
-            </option>
-        <?php } ?>
-        {% endfor %}
-    </select>
-</form>
+
+<?php include "tpl_nav.php" ?>
 
 <?php if ($transactions) { ?>
     <table class="table">
         <thead>
         <tr>
-            <th>date</th>
-            <th>description</th>
-            <th>amount</th>
-            <th>doc</th>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>File</th>
         </tr>
         </thead>
         <tbody>
@@ -57,10 +53,10 @@ $transactions = Main::reconciliation($bankin, $month);
             <tr>
                 <td style="display: overflow:hidden; white-space: nowrap;"><?= $t->date ?></td>
                 <td><?= $t->description ?></td>
-                <td bgcolor="<?= $t->amount > 0 ? "green" : "red" ?>"><?= sprintf("%.2f", $t->amount) ?></td>
-                <td bgcolor="<?= $t->file ? "" : "red" ?>">
+                <td class="<?= $t->amount > 0 ? "font-green" : "font-red" ?>"><?= sprintf("%.2f", $t->amount) ?></td>
+                <td class="<?= $t->file ? "" : "bg-red" ?>">
                     <?php if ($t->file) { ?>
-                        <a target="_blank" href="<?= $t->file->viewlink ?>"><?= $t->file->filename ?></a>
+                        <a target="_blank" href="<?= $t->file->viewlink ?>"><?= $t->file->name ?></a>
                         <form method="post" style="display: inline-block" >
                             <input type="hidden" name="id" value="<?= $t->file->id ?>"/>
                             <button type="submit" name="action" value="delete">

@@ -10,7 +10,6 @@ namespace Main;
 
 class File {
     public $id; //path or id. for local FS id = DOCUMENTS_FOLDER + / + filename (with extension)
-    public $name; //filename without extension
-    public $filename; //with extension
+    public $name; //name with extension
     public $viewlink; //view document
 }
