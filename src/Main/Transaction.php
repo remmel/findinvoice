@@ -15,8 +15,10 @@ class Transaction {
     public $amount;
     public $currency;
     public $upload;
-    public $doc;
-    public $doclink;
-    /** @var To easily find the invoice */
+
+    /** @var File */
+    public $file;
+
+    /** @var string Link to easily find the invoice */
     public $helplink;
 }

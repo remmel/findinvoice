@@ -23,7 +23,7 @@ $months = $main->listMonths();
 if($action == 'upload') {
     $main->handleUpload($month);
 } elseif ($action == 'delete') {
-    $main->removeFile($month, $_POST['fn']);
+    $main->removeFilesystem($_POST['id']);
 }
 
 $transactions = Main::reconciliation($bankin, $month);
@@ -57,12 +57,12 @@ $transactions = Main::reconciliation($bankin, $month);
             <tr>
                 <td style="display: overflow:hidden; white-space: nowrap;"><?= $t->date ?></td>
                 <td><?= $t->description ?></td>
-                <td bgcolor="<?= $t->amount > 0 ? "green" : "red" ?>"><?= $t->amount ?></td>
-                <td bgcolor="<?= $t->doc ? "" : "red" ?>">
-                    <?php if ($t->doc) { ?>
-                        <a target="_blank" href="<?= $t->doclink ?>"><?= $t->doc ?></a>
+                <td bgcolor="<?= $t->amount > 0 ? "green" : "red" ?>"><?= sprintf("%.2f", $t->amount) ?></td>
+                <td bgcolor="<?= $t->file ? "" : "red" ?>">
+                    <?php if ($t->file) { ?>
+                        <a target="_blank" href="<?= $t->file->viewlink ?>"><?= $t->file->filename ?></a>
                         <form method="post" style="display: inline-block" >
-                            <input type="hidden" name="fn" value="<?= $t->doc ?>"/>
+                            <input type="hidden" name="id" value="<?= $t->file->id ?>"/>
                             <button type="submit" name="action" value="delete">
                                 <span>&times;</span>
                             </button>

@@ -47,14 +47,12 @@ class Main {
     public function reconciliation(Bankin $bankin, \DateTime $month) {
         $btransactions = $bankin->transactions($_SESSION['email'], $_SESSION['password'], $month);
         $files = self::filesFilesystem($month);
-        $filesFolder = self::getFolder($month);
         $assocFiles = [];
-        foreach ($files as $file) {
-            $fileWithoutExt = pathinfo($file, PATHINFO_FILENAME);
-            $parts = explode('_', $fileWithoutExt);
+        foreach ($files as $f) {
+            $parts = explode('_', $f->name);
             $key = $parts[0] . '_' . $parts[2];
             if(!isset($assocFiles[$key])) $assocFiles[$key] = [];
-            $assocFiles[$key][] = $file;
+            $assocFiles[$key][] = $f;
         }
 
         /** @var Transaction[] $transactions */
@@ -71,9 +69,8 @@ class Main {
             $key = $t->date . '_' . number_format(abs($t->amount), 2,'.', '');
 
             if (isset($assocFiles[$key]) && count($assocFiles[$key]) > 0) {
-                $filename = array_shift($assocFiles[$key]);
-                $t->doc = $filename;
-                $t->doclink = 'file:' . $filesFolder . $assocFiles[$key];
+                $f = array_shift($assocFiles[$key]);
+                $t->file = $f;
             } else {
                 //if not document uploaded, display some help to find that doc
                 $t->helplink = self::findHelp($bt->raw_description);
@@ -112,11 +109,6 @@ class Main {
         }
     }
 
-    public function removeFile(\DateTime $month, $filename){
-        $dir = self::getFolder($month);
-        unlink($dir.$filename);
-    }
-
     public static function filename($t, $info = '') {
         $desc = $t->raw_description;
         $desc = str_replace(['Virement Web ', 'Virement ', 'Paiement Par Carte ', 'Prelevmnt '], ['', '', '', ''], $desc);
@@ -136,10 +128,30 @@ class Main {
 
     /**
      * List files
+     * @return File[]
      */
     public static function filesFilesystem(\DateTime $date) {
         $folder = self::getFolder($date);
-        return scandir($folder);
+        $files = scandir($folder);
+
+        $relativeFolder = substr($folder, strlen(DOCUMENTS_FOLDER));
+
+        $oFiles = [];
+        foreach ($files as $f){
+            if($f == '.' || $f =='..') continue;
+            $oFile = new File();
+            $oFile->filename = $f;
+            $oFile->name = pathinfo($f, PATHINFO_FILENAME);
+            $oFile->id = $relativeFolder.$f;
+            $oFile->viewlink = '/viewlocalfile.php?id='.urlencode($oFile->id);
+
+            $oFiles[] = $oFile;
+        }
+        return $oFiles;
+    }
+
+    public function removeFilesystem($id){
+        unlink(DOCUMENTS_FOLDER.$id);
     }
 
     /**
