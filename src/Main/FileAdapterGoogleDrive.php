@@ -12,6 +12,9 @@ use Google_Client;
 use Google_Service_Drive;
 use Google_Service_Drive_DriveFile;
 
+/**
+ * Google API Guide : https://developers.google.com/api-client-library/php/start/get_started
+ */
 class FileAdapterGoogleDrive implements IFileAdapter {
 
     protected $rootFolder;
@@ -82,7 +85,15 @@ class FileAdapterGoogleDrive implements IFileAdapter {
             if ($f->name == $month)
                 return $f->id;
 
-        throw new \Exception("folder $month not found in parent folder $this->rootFolder");
+        $file = $this->drive->files->create(
+            new Google_Service_Drive_DriveFile([
+                'name' => $month,
+                'parents' => [$this->rootFolder],
+                'mimeType' => 'application/vnd.google-apps.folder',
+            ], [
+                'fields' => 'id'
+            ]));
+        return $file->id;
     }
 
     /**
