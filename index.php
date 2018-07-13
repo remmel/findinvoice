@@ -7,8 +7,16 @@ session_start();
 use Main\Bankin;
 use Main\Main;
 
-$bankin = new Bankin();
 
+//bank
+$bank = new Bankin();
+//is not logged
+if (!isset($_SESSION['email']) && !isset($_SESSION['password'])) {
+    header('Location: user.php');
+}
+//$bank = new \Main\FakeBankConector();
+
+//filesystem
 $fileAdapter = new \Main\FileAdapterGoogleDrive(DOCUMENTS_FOLDER_GDRIVE, $_SESSION['access_token']);
 $fileAdapter->authenticateIfNeeded();
 
@@ -17,22 +25,23 @@ $fileAdapter->authenticateIfNeeded();
 $main = new Main($fileAdapter);
 
 
-$action = isset($_POST['action'])?$_POST['action']:'';
 
-//is not logged
-if (!isset($_SESSION['email']) && !isset($_SESSION['password'])) {
-    header('Location: user.php');
-}
+$action = isset($_REQUEST['action'])?$_REQUEST['action']:'';
 
 $month = $main->selectedMonth($_GET['month']);
 $months = $main->listMonths();
-if($action == 'upload') {
+if($action === 'upload') {
     $main->handleUpload($month);
-} elseif ($action == 'delete') {
+} elseif ($action === 'delete') {
     $fileAdapter->remove($_POST['id']);
 }
 
-list($transactions, $orphanFiles) = $main->reconciliation($bankin, $month);
+
+if($action === "positivetransactions") {
+    $transactions = $main->filterPositiveTransactions($bank, $month);
+} else {
+    list($transactions, $orphanFiles) = $main->reconciliation($bank, $month);
+}
 
 ?>
 
@@ -89,6 +98,23 @@ list($transactions, $orphanFiles) = $main->reconciliation($bankin, $month);
         </tbody>
     </table>
 <?php } ?>
+
+
+<textarea cols="50" id="copy-tab" style="display: none">
+<?php foreach ($transactions as $t) { ?><?=$t->date."\t".$t->description."\t".$t->amount."\n"?><?php } ?>
+</textarea>
+
+
+<script>
+    $('#btn-copy-clipboard').click(function (e) {
+        $textarea = $('#copy-tab');
+        $textarea.show().select();
+        document.execCommand('copy');
+        $textarea.hide();
+        alert('copied into clipboard');
+    });
+
+</script>
 
 <script>
     //as a default comment put the name of the file without path and extension

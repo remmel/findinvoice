@@ -1,0 +1,92 @@
+{
+  "2018-06": [
+    {
+      "id": 831914346,
+      "date": "2018-06-01",
+      "description": "Adobe Stock 044-207-3650 01\/06",
+      "amount": -29.99,
+      "currency": "EUR",
+      "type": "card"
+    },
+    {
+      "id": 739718062,
+      "date": "2018-06-01",
+      "description": "Facebk *123456 Fb.Me\/a 31\/05",
+      "amount": -18.77,
+      "currency": "EUR",
+      "type": "card"
+    },
+    {
+      "id": 981558660,
+      "date": "2018-06-04",
+      "description": "Google *svcsapps Comp Cc\u00e0g 02\/06",
+      "amount": -25.28,
+      "currency": "EUR",
+      "type": "card"
+    },
+    {
+      "id": 390035456,
+      "date": "2018-06-04",
+      "description": "Ovh Roubaix 02\/06",
+      "amount": -8.39,
+      "currency": "EUR",
+      "type": "card"
+    },
+    {
+      "id": 136304677,
+      "date": "2018-06-05",
+      "description": "Microsoft *bing Ads Msbill 04\/06",
+      "amount": -51.8,
+      "currency": "EUR",
+      "type": "card"
+    },
+    {
+      "id": 73374709,
+      "date": "2018-06-05",
+      "description": "Scaleway Paris 04\/06",
+      "amount": -7.81,
+      "currency": "EUR",
+      "type": "card"
+    },
+    {
+      "id": 932633690,
+      "date": "2018-06-06",
+      "description": "Mgp*5euros Paris 05\/06",
+      "amount": -5.81,
+      "currency": "EUR",
+      "type": "card"
+    },
+    {
+      "id": 790566262,
+      "date": "2018-06-07",
+      "description": "Fiverr 1234567 06\/06",
+      "amount": -5.98,
+      "currency": "EUR",
+      "type": "card"
+    },
+    {
+      "id": 269916302,
+      "date": "2018-06-07",
+      "description": "Fiverr 1234567 06\/06",
+      "amount": -5.98,
+      "currency": "EUR",
+      "type": "card"
+    },
+    {
+      "id": 684881637,
+      "date": "2018-06-15",
+      "description": "Cnp\/alan Cotisation Alan Prevoyance Echeance 06\/2018 Fr123456 1234567",
+      "amount": -46.08,
+      "currency": "EUR",
+      "type": "direct-debit"
+    },
+    {
+      "id": 890231823,
+      "date": "2018-06-11",
+      "description": "Alan Alan Assurance Sant? Multi Multi 14 50 Fr123456 1234567",
+      "amount": -50,
+      "currency": "EUR",
+      "type": "direct-debit"
+    }
+  ]
+}

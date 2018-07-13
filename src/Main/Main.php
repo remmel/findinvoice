@@ -34,12 +34,17 @@ class Main {
     /** @var IFileAdapter */
     protected $fileAdapter;
 
-    /** @var IBank */
-    protected $bank;
-
     public function __construct(IFileAdapter $fa) {
         $this->fileAdapter = $fa;
-        $this->bank = new Bankin();
+    }
+
+    public function filterPositiveTransactions(IBank $bank, \DateTime $month) {
+        $transactions = $bank->transactions($month);
+        foreach ($transactions as $k => $t) {
+            if($t->amount < 0)
+                unset($transactions[$k]);
+        }
+        return $transactions;
     }
 
     /**
@@ -47,7 +52,7 @@ class Main {
      * Currenlty the key to link bank row with receipt is the DATE_AMOUNT.
      * TODO Handle if same amount twice the same day.
      */
-    public function reconciliation(Bankin $bankin, \DateTime $month) {
+    public function reconciliation(IBank $bank, \DateTime $month) {
         $files = $this->fileAdapter->files($month);
         $assocFiles = [];
         foreach ($files as $f) {
@@ -58,7 +63,7 @@ class Main {
             $assocFiles[$key][] = $f;
         }
 
-        $transactions = $bankin->transactions($month);
+        $transactions = $bank->transactions($month);
         //add info for each transaction
         foreach ($transactions as $t) {
             $t->upload = self::filename($t);
