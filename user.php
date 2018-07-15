@@ -40,9 +40,12 @@ if ($action === 'create') {
 } else if ($action === 'login') {
     $auth = $bankin->authenticate($email, $password);
     if (isset($auth->type)) {
-        echo 'cannot login: ' . $auth->message . ' / ' . $auth->type;
+        echo 'cannot login: ' . $auth->message . ' / ' . $auth->type.'<br />';
+        if(\Main\Utils::contains($auth->message, 'whitelist')) {
+            echo "<a href='https://bridgeapi.io/dashboard/apps'>Add IP in BridgeApi</a><br />";
+        }
     } else {
-        echo 'login successfully';
+        echo 'login successfully<br />';
         $_SESSION['email'] = $email;
         $_SESSION['password'] = $password;
         header('Location: /');

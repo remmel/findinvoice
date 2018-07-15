@@ -76,11 +76,16 @@ if($action === "positivetransactions") {
                         </form>
                     <?php } else { ?>
                         <?php if ($t->helplink) { ?>
-                            <a target="_blank" href="<?= $t->helplink ?>">Help</a>
+                            <?php if (\Main\Utils::startsWith($t->helplink,'http')) { ?>
+                                <a target="_blank" href="<?= $t->helplink ?>">Help</a>
+                            <?php }else{ ?>
+                                <button type="button" class="btn btn-primary fetch" data-provider="<?= $t->helplink ?>" data-amount="<?=$t->amount?>" data-date="<?=$t->date?>">🔎 Fetch</button>
+                                <select class="fetch" data-provider="<?= $t->helplink ?>"></select>
+                            <?php } ?>
                         <?php } ?>
                         <form method="post" enctype="multipart/form-data" class="upload">
-
                             <input type="file" name="receipt"/><br />
+                            <input type="hidden" name="receipt_tmppath"/><br />
                             <div class="input-group mb-3" style="width: 300px">
                                 <input type="text" class="form-control" placeholder="comment" name="comment" value="">
                                 <div class="input-group-append">
@@ -126,3 +131,41 @@ if($action === "positivetransactions") {
         $comment.select();
     });
 </script>
+
+<script>
+    $("button.fetch").click(function () {
+        var $btn = $(this);
+        var provider = $btn.data('provider');
+        $btn.addClass('spinner');
+
+        var params = {
+            'id': $btn.data('provider'),
+            'amount': $btn.data('amount'),
+            'date': $btn.data('date')
+        };
+
+        $.getJSON('/fetch.php', params , function (data) {
+            $btn.removeClass('spinner');
+            var sel = $btn.siblings('select');
+            sel.append($("<option>").attr('value', null).text('-- select --'));
+            $.each(data, function (k, v) {
+                sel.append($("<option>").attr('value', k).text(v));
+            });
+        });
+    });
+
+    $("select.fetch").change(function () {
+        var $select = $(this);
+        var provider = $select.data('provider');
+
+        $select.addClass("spinner");
+        $.getJSON('/fetch.php?id=' + provider + '&invoice=' + this.value, function (data) {
+            $select.removeClass('spinner');
+            var $form = $select.siblings('form');
+            $form.find('input[name=comment]').val(data.fn);
+            $form.find('input[name=receipt_tmppath]').val(data.tmppath);
+        });
+    });
+</script>
+
+

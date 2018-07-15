@@ -38,6 +38,10 @@ class Utils {
         return strpos($haystack, $needle) !== false;
     }
 
+    public static function startsWith($haystack, $needle) {
+        return (strcasecmp(substr($haystack, 0, strlen($needle)), $needle) === 0);
+    }
+
     /**
      * Removes special characters and underscore to be able to get a nice filename
      * Underscore is removed because used by that tool to codify invoices

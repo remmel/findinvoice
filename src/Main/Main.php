@@ -15,7 +15,8 @@ use DateTime;
 class Main {
     const HELP = [
         'Amazon Payments' => 'https://www.amazon.fr/gp/css/order-history/ref=nav_youraccount_orders',
-        'Ovh' => 'https://www.ovh.com/manager/dedicated/index.html#/billing/history',
+//        'Ovh' => 'https://www.ovh.com/manager/dedicated/index.html#/billing/history',
+        'Ovh' => FetchOvhSoap::class,
         'Google *svcsapps' => 'https://mail.google.com/mail/u/1/#search/from%3Apayments-noreply%40google.com',
         'Google*cloud' => 'https://console.cloud.google.com/billing/',
         'Google *adws210617042' => 'https://adwords.google.fr/um/identity?dst=/um/Billing/Home#th',
@@ -93,17 +94,20 @@ class Main {
      * If a file is uploaded, add it to the folder
      */
     public function handleUpload(\DateTime $month) {
+        if(isset($_POST['receipt_tmppath'])) {
+            $receiptTmpPath = $_POST['receipt_tmppath'];
+        } else if (isset($_FILES['receipt'])) {
+            $receiptTmpPath = $_FILES['receipt']['name'];
+        }
 
+        if ($receiptTmpPath) {
+        	$path_info = pathinfo($receiptTmpPath);
 
-        if (isset($_FILES['receipt'])) {
-            $receipt = $_FILES['receipt'];
-
-            $path_info = pathinfo($receipt['name']);
             $commentPart = isset($_POST['comment']) ? '_' . Utils::cleanNameToFilename($_POST['comment']) : '';
             $fn = $_POST['fn'];
             $newName = $fn . $commentPart . '.' . $path_info['extension'];
 
-            $this->fileAdapter->upload($month, $receipt['tmp_name'], $newName);
+        	$this->fileAdapter->upload($month, $receiptTmpPath, $newName);
         }
     }
 

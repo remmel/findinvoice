@@ -126,8 +126,8 @@ class FileAdapterGoogleDrive implements IFileAdapter {
     /**
      * Upload a new file the subfolder
      * @param \DateTime $month
-     * @param $tmp path of tmp file uploaded on server
-     * @param $newName new name of the file eg (2018-06-34_GoogleSuite_345.00_june-4pax.pdf)
+     * @param string $tmp path of tmp file uploaded on server
+     * @param string $newName new name of the file eg (2018-06-34_GoogleSuite_345.00_june-4pax.pdf)
      * @return mixed
      */
     public function upload(\DateTime $month, $tmp, $newName) {
