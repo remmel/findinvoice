@@ -11,10 +11,6 @@ namespace Main;
 use SoapClient;
 
 class FetchOvhSoap {
-    const APPLICATION_KEY = 'Zd9E03hYhPQljURy';
-    const APPLICATION_SECRET = '2tz71pulwRQyYewEKnk62Adt7b1nwRRq';
-    const CONSUMER_KEY = 'xxxxxxxxxx';
-
     public function invoicesId(\DateTime $date, float $amount) {
         $soap = new SoapClient("https://www.ovh.com/soapi/soapi-re-1.63.wsdl");
         $session = $soap->login(FETCH_OVHSOAP_NIC, FETCH_OVHSOAP_PASSWORD, 'fr', true);
@@ -25,7 +21,7 @@ class FetchOvhSoap {
         foreach ($invoices as $i) {
             $i->proximity = (int)$date->diff(new \DateTime($i->date), true)->format("%a");
             if($i->totalPriceWithVat == abs($amount)) {
-                $i->proximity-=5;
+                $i->proximity-=5; //calculate diff price instead
             }
         }
         usort($invoices, function($a,$b) {

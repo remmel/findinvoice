@@ -29,7 +29,8 @@ class Main {
         'Bap Link' => 'https://poissonniers.espace.link/gestion/factures/recurrentes',
         'Lespace - Poissonnie' => 'https://poissonniers.espace.link/gestion/depot-de-garantie',
         'Fiverr' => 'https://mail.google.com/mail/u/1/#search/from%3A(invoices%40fiverr.com)',
-        'Scaleway' => 'https://cloud.scaleway.com/#/billing'
+        'Scaleway' => 'https://cloud.scaleway.com/#/billing',
+        'Cdiscount' => 'https://clients.cdiscount.com/Order/OrdersTracking.html'
     ];
 
     /** @var IFileAdapter */
@@ -94,19 +95,20 @@ class Main {
      * If a file is uploaded, add it to the folder
      */
     public function handleUpload(\DateTime $month) {
-        if(isset($_POST['receipt_tmppath'])) {
+        if(!empty($_POST['receipt_tmppath'])) {
             $receiptTmpPath = $_POST['receipt_tmppath'];
+            $path_info = pathinfo($receiptTmpPath);
+            $ext = $path_info['extension'];
         } else if (isset($_FILES['receipt'])) {
-            $receiptTmpPath = $_FILES['receipt']['name'];
+            $receiptTmpPath = $_FILES['receipt']['tmp_name'];
+            $path_info = pathinfo($_FILES['receipt']['name']);
+            $ext = $path_info['extension'];
         }
 
         if ($receiptTmpPath) {
-        	$path_info = pathinfo($receiptTmpPath);
-
             $commentPart = isset($_POST['comment']) ? '_' . Utils::cleanNameToFilename($_POST['comment']) : '';
             $fn = $_POST['fn'];
-            $newName = $fn . $commentPart . '.' . $path_info['extension'];
-
+            $newName = $fn . $commentPart . '.' . $ext;
         	$this->fileAdapter->upload($month, $receiptTmpPath, $newName);
         }
     }

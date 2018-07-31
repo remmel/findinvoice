@@ -52,9 +52,9 @@ class FileAdapterGoogleDrive implements IFileAdapter {
             header('Location: ' . filter_var($this->client->createAuthUrl(), FILTER_SANITIZE_URL));
         } else {
             if ($this->client->isAccessTokenExpired()) {
-                die("expired");
-//        print_r($accessToken);
-//        $to = $client->refreshToken($accessToken->access_token);
+                throw new \Exception("TODO handle when token is expired");
+//              print_r($accessToken);
+//            $to = $this->client->refreshToken($this->accessToken);
             }
 
         }
@@ -139,7 +139,10 @@ class FileAdapterGoogleDrive implements IFileAdapter {
             'name' => $newName,
             'parents' => [$folderIdMonth]
         ]);
+
+        if(!file_exists($tmp)) throw new \Exception("file $tmp missing");
         $content = file_get_contents($tmp);
+
         $mimetype = mime_content_type($tmp);
         $file = $this->drive->files->create($fileMetadata, array(
             'data' => $content,
