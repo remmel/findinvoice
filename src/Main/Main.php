@@ -58,6 +58,7 @@ class Main {
         $files = $this->fileAdapter->files($month);
         $assocFiles = [];
         foreach ($files as $f) {
+            if(Utils::startsWith($f->name, '.')) continue; //ignore file beginning with dot
             $nameNoExt = pathinfo($f->name, PATHINFO_FILENAME);
             $parts = explode('_', $nameNoExt);
             $key = $parts[0] . '_' . $parts[2];
@@ -117,7 +118,7 @@ class Main {
         $desc = $t->description;
         $desc = str_replace(['Virement Web ', 'Virement ', 'Paiement Par Carte ', 'Prelevmnt '], ['', '', '', ''], $desc);
         $words = explode(' ', $desc);
-        $desc = Utils::cleanNameToFilename($words[0] . '-' . $words[1]);
+        $desc = isset($words[1]) ? Utils::cleanNameToFilename($words[0] . '-' . $words[1]) : $desc;
         return $t->date . '_' . $desc . '_' . number_format(abs($t->amount), 2,'.', '') . ($info && strlen($info)>0 ? ('_' . $info) : '');
     }
 

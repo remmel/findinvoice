@@ -39,7 +39,9 @@ class FileAdapterGoogleDrive implements IFileAdapter {
     public function authenticateIfNeeded() {
 
         //1st conection
-        if ($this->accessToken === null) {
+        if ($this->accessToken === null
+            //|| $this->client->isAccessTokenExpired()
+            ) {
             $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . '/oauth2callback.php';
             header('Location: ' . filter_var($redirect_uri, FILTER_SANITIZE_URL));
 
@@ -85,14 +87,18 @@ class FileAdapterGoogleDrive implements IFileAdapter {
             if ($f->name == $month)
                 return $f->id;
 
+        //mandatory?
+        $this->client->addScope(Google_Service_Drive::DRIVE);
+
         $file = $this->drive->files->create(
             new Google_Service_Drive_DriveFile([
                 'name' => $month,
                 'parents' => [$this->rootFolder],
-                'mimeType' => 'application/vnd.google-apps.folder',
-            ], [
-                'fields' => 'id'
-            ]));
+                'mimeType' => 'application/vnd.google-apps.folder'
+            ]), [
+                'uploadType' => 'multipart',
+                'fields' => 'id',
+            ]);
         return $file->id;
     }
 
