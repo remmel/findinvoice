@@ -2,12 +2,22 @@
 
 Tool to easier the collect of invoices from the bank details (bank reconciliation).
 
+2 projects :
+- legacy : vanilly php without database (deleted once migrated)
+- symfony : sf project
+
 ## Getting Started
 
-checkout
-composer
-run php server : php -S localhost:8000  
-configure parameters.dumb.php
+`git clone git@github.com:remmel/findinvoice.git`
+`cd findinvoice`  
+`composer install`  
+
+Legacy project : 
+- run php server : `php -S localhost:8000 -t publiclegacy/`
+- configure parameters.dumb.php
+
+Symfony project :
+- `bin/console server:run`
 
 ## Structure
 
