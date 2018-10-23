@@ -16,7 +16,7 @@ class FakeBankin implements IBank {
      * @return Transaction[]
      */
     public function transactions(\DateTime $month) {
-        $rows = Utils::file_get_contents_csv_header(__DIR__.'/exportbank/tmp_bankin.csv');
+        $rows = Utils::file_get_contents_csv_header(__DIR__ . '/tmp_exportbank/tmp_bankin.csv');
 
         $oTransactions = [];
         foreach ($rows as $row) {

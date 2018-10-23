@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}FindInvoice{% endblock %}
+
+{% block body %}
+    <div class="example-wrapper">
+        <form method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="exampleInputEmail1">Select bank csv to upload:</label>
+                <input type="file" name="file">
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+{% endblock %}

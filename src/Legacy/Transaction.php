@@ -8,11 +8,8 @@
 namespace App\Legacy;
 
 
-class Transaction {
-    public $id;
-    public $date;
-    public $description;
-    public $amount;
+class Transaction extends \App\Entity\Transaction {
+
     public $currency;
     public $upload;
 

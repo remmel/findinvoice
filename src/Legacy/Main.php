@@ -15,8 +15,8 @@ use DateTime;
 class Main {
     const HELP = [
         'Amazon Payments' => 'https://www.amazon.fr/gp/css/order-history/ref=nav_youraccount_orders',
-//        'Ovh' => 'https://www.ovh.com/manager/dedicated/index.html#/billing/history',
-        'Ovh' => FetchOvhSoap::class,
+        'Ovh' => 'https://www.ovh.com/manager/dedicated/index.html#/billing/history',
+//        'Ovh' => FetchOvhSoap::class,
         'Google *svcsapps' => 'https://mail.google.com/mail/u/1/#search/from%3Apayments-noreply%40google.com',
         'Google*cloud' => 'https://console.cloud.google.com/billing/',
         'Google *adws210617042' => 'https://adwords.google.fr/um/identity?dst=/um/Billing/Home#th',
@@ -32,6 +32,8 @@ class Main {
         'Scaleway' => 'https://cloud.scaleway.com/#/billing',
         'Cdiscount' => 'https://clients.cdiscount.com/Order/OrdersTracking.html'
     ];
+
+    const FIRST_MONTH = '2017-07';
 
     /** @var IFileAdapter */
     protected $fileAdapter;
@@ -127,7 +129,7 @@ class Main {
      * @param $queryMonth iso date eg : 2018-12
      * @return DateTime
      */
-    public function selectedMonth(&$queryMonth) {
+    public static function selectedMonth(&$queryMonth) {
         $currentMonth = (new DateTime())->modify('first day of this month');
         return isset($queryMonth) ? new DateTime($queryMonth) : $currentMonth;
     }
@@ -136,8 +138,8 @@ class Main {
      * Returns the list of month as ISO string (YYYY-MM)
      * @return string[]
      */
-    public function listMonths() {
-        $start = (new DateTime(FIRST_MONTH . '-01'))->modify('first day of this month');
+    public static function listMonths() {
+        $start = (new DateTime(self::FIRST_MONTH . '-01'))->modify('first day of this month');
         $currentMonth = (new DateTime())->modify('first day of this month');
         $interval = DateInterval::createFromDateString('1 month');
         $months = new DatePeriod($start, $interval, $currentMonth);
@@ -149,7 +151,7 @@ class Main {
         return array_reverse($labels);
     }
 
-    public function findHelp($description) {
+    public static function findHelp($description) {
         foreach (self::HELP as $words => $link) {
             if(Utils::contains($description, $words)) {
                 return $link;

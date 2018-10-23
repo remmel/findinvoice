@@ -73,7 +73,7 @@ class Utils {
     public static function file_put_contents_csv(array $rows, $path, $delimiter = ',') {
         $fp = fopen($path, 'w');
         foreach ($rows as $row) {
-            fputcsv($fp, $row, $delimiter);
+            fputcsv($fp, (array) $row, $delimiter);
         }
         fclose($fp);
     }
@@ -85,9 +85,22 @@ class Utils {
     public static function file_get_contents_csv_header($path, $delimiter = ',') {
         $rows = self::file_get_contents_csv($path, $delimiter);
         $header = array_shift($rows);
+        return self::arrayToAssoc($rows, $header);
+    }
 
+    public static function file_put_contents_csv_header(array $objects, $path, $delimiter = ',') {
+        $keys = array_keys((array)$objects[0]);
+        self::file_put_contents_csv(array_merge([$keys],$objects), $path, $delimiter);
+    }
+
+    /**
+     * @param $rows array[]
+     * @param $header array
+     * @return array[]
+     */
+    public static function arrayToAssoc($rows, $header): array {
         $orows = [];
-        foreach($rows as $row) {
+        foreach ($rows as $row) {
             $obj = new \stdClass();
             foreach ($row as $k => $v) {
                 $obj->{$header[$k]} = $v;
@@ -95,11 +108,6 @@ class Utils {
             $orows[] = $obj;
         }
         return $orows;
-    }
-
-    public static function file_put_contents_csv_header(array $objects, $path, $delimiter = ',') {
-        $keys = array_keys($objects[0]);
-        self::file_put_contents_csv(array_merge([$keys],$objects), $path, $delimiter);
     }
 
 }

@@ -2,22 +2,12 @@
 
 Tool to easier the collect of invoices from the bank details (bank reconciliation).
 
-2 projects :
-- legacy : vanilly php without database (deleted once migrated)
-- symfony : sf project
-
 ## Getting Started
 
 `git clone git@github.com:remmel/findinvoice.git`
 `cd findinvoice`  
 `composer install`  
-
-Legacy project : 
-- run php server : `php -S localhost:8000 -t publiclegacy/`
-- configure parameters.dumb.php
-
-Symfony project :
-- `bin/console server:run`
+`bin/console server:run`
 
 ## Structure
 
@@ -30,6 +20,10 @@ Each receipt is named with the concatenation of
 
 ```
 GDrive
+├── db
+│   ├── unsorted/
+│   ├── transactions.csv (id,date,amount,description) (?currency,?account)
+│   └── invoices.csv (date,amount,filename) (?source)
 ├── 2018-01
 │   ├── 2018-01-03_Adobe_29.99_Adobe_Transaction-No-0891058534-20180330.pdf
 │   ├── 2018-01-03_Facebk_33.00_2018-03-31T17-30-Transaction-n-1422984147813481-3453781.pdf
@@ -45,6 +39,7 @@ GDrive
 ### Banking API
 
 Bankin is used https://docs.bridgeapi.io/docs - You will need to create an account https://bridgeapi.io/dashboard/signin if you install that project on your server.  
+Linxo
 Others providers : https://www.linkedin.com/pulse/complete-whos-who-banking-apis-prateek-sanjay/
 
 ### Alternatives
@@ -53,7 +48,7 @@ Others providers : https://www.linkedin.com/pulse/complete-whos-who-banking-apis
 
 ## Features
 - Read the invoiced stored (FileSystem; GoogleDrive)
-- Read the transactions (Bankin API)  
+- Import transactions from Credit Agricole CSV file
 
 ## Next features
 - Handle cloud drive (✓Google Drive; DropBox)
@@ -62,3 +57,4 @@ Others providers : https://www.linkedin.com/pulse/complete-whos-who-banking-apis
 - Fetch invoices from mailbox
 - Fetch invoices from multiples account (Google Adwords, OVH, Facebook Ad, Amazon...) to fetch invoices
 - Store in csv db
+- Read the transactions (Bankin API)  

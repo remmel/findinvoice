@@ -12,12 +12,14 @@ class FileAdapterFilesystem implements IFileAdapter {
 
     protected $rootFolder = null;
 
-    public function __construct($rootFolder) {
-        $this->rootFolder = $rootFolder;
+    public function __construct() {
+        //TODO inject variable using SF
+        $this->rootFolder = $_ENV['FILEADAPTER_FS_FOLDER'];
     }
 
     /**
      * @inheritdoc
+     * @return File[]
      */
     public function files(\DateTime $date) {
         $folder = self::getSubfolder($date);

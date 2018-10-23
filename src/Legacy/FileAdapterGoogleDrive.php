@@ -22,12 +22,13 @@ class FileAdapterGoogleDrive implements IFileAdapter {
     protected $client;
     protected $drive;
 
-    public function __construct($rootFolder, $accessToken) {
-        $this->rootFolder = $rootFolder;
+    public function __construct($accessToken) {
+        //TODO inject variable using SF
+        $this->rootFolder = $_ENV['FILEADAPTER_GDRIVE_FOLDER'];
         $this->accessToken = $accessToken;
 
         $this->client = new Google_Client();
-        $this->client->setAuthConfig('client_secrets.json');
+        $this->client->setAuthConfig('../config/client_secrets.json');
 //        $this->client->addScope(Google_Service_Drive::DRIVE_METADATA_READONLY);
         $this->client->setAccessType('offline');
         $this->client->setRedirectUri('http://' . $_SERVER['HTTP_HOST'] . '/oauth2callback.php');
@@ -50,6 +51,7 @@ class FileAdapterGoogleDrive implements IFileAdapter {
             ]);
 
             header('Location: ' . filter_var($this->client->createAuthUrl(), FILTER_SANITIZE_URL));
+            die("");
         } else {
             if ($this->client->isAccessTokenExpired()) {
 
@@ -57,7 +59,7 @@ class FileAdapterGoogleDrive implements IFileAdapter {
 
 //                throw new \Exception("TODO handle when token is expired");
 //              print_r($accessToken);
-            $to = $this->client->refreshToken($this->accessToken);
+                $to = $this->client->refreshToken($this->accessToken);
             }
 
         }
@@ -70,7 +72,6 @@ class FileAdapterGoogleDrive implements IFileAdapter {
     }
 
     public function revoke() {
-        print_r($this->client->getAccessToken());
         return $this->client->revokeToken();
     }
 
@@ -97,9 +98,9 @@ class FileAdapterGoogleDrive implements IFileAdapter {
                 'parents' => [$this->rootFolder],
                 'mimeType' => 'application/vnd.google-apps.folder'
             ]), [
-                'uploadType' => 'multipart',
-                'fields' => 'id',
-            ]);
+            'uploadType' => 'multipart',
+            'fields' => 'id',
+        ]);
         return $file->id;
     }
 
@@ -147,7 +148,7 @@ class FileAdapterGoogleDrive implements IFileAdapter {
             'parents' => [$folderIdMonth]
         ]);
 
-        if(!file_exists($tmp)) throw new \Exception("file $tmp missing");
+        if (!file_exists($tmp)) throw new \Exception("file $tmp missing");
         $content = file_get_contents($tmp);
 
         $mimetype = mime_content_type($tmp);

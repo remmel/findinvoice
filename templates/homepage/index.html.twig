@@ -1,20 +1,109 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello {{ controller_name }}!{% endblock %}
+{% block title %}FindInvoice{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>File</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for t in transactions %}
+                <tr>
+                    <td style="display: overflow:hidden; white-space: nowrap;">{{ t.date }}</td>
+                    <td>{{ t.description }}</td>
+                    <td class="{{ t.amount > 0 ? "font-green" : "font-red" }}">{{ t.amount }}</td>
+                    <td class="{{ t.file ? "" : "bg-red" }}">
+                        {% if t.file %}
+                            <a target="_blank" href="{{ t.file.viewlink }}">{{ t.file.name }} </a>
+                            <form method="post" style="display: inline-block">
+                                <input type="hidden" name="id" value="{{ t.file.id }}"/>
+                                <button type="submit" name="action" value="delete">
+                                    <span>&times;</span>
+                                </button>
+                            </form>
+                        {% else %}
+                            {% if t.helplink %}
+                                {% if t.helplink starts with 'http' %}
+                                    <a target="_blank" href="{{ t.helplink }}">Help</a>
+                                {% else %}
+                                <button type="button" class="btn btn-primary fetch" data-provider="{{ t.helplink }}"
+                                        data-amount="{{ t.amount }}" data-date="{{ t.date }}">🔎 Fetch
+                                </button>
+                                <select class="fetch" data-provider="{{ t.helplink }}"></select>
+                                {% endif %}
+                            {% endif %}
+                            <form method="post" enctype="multipart/form-data" class="upload">
+                                <input type="file" name="receipt"/><br/>
+                                <input type="hidden" name="receipt_tmppath"/><br/>
+                                <div class="input-group mb-3" style="width: 300px">
+                                    <input type="text" class="form-control" placeholder="comment" name="comment" value="">
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-outline-secondary" type="button">✔</button>
+                                    </div>
+                                </div>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+                                <input type="hidden" name="fn" value="{{ t.upload }}"/>
+                                <input type="hidden" name="action" value="upload"/>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ 'src/Controller/HomepageController.php'|file_link(0) }}">src/Controller/HomepageController.php</a></code></li>
-        <li>Your template at <code><a href="{{ 'templates/homepage/index.html.twig'|file_link(0) }}">templates/homepage/index.html.twig</a></code></li>
-    </ul>
-</div>
+    <script>
+        //as a default comment put the name of the file without path and extension
+        $('.upload input[name=receipt]').change(function (e) {
+            var fn = this.value;
+            fn = fn.substring(fn.lastIndexOf('\\') + 1, fn.lastIndexOf('.'));
+            $comment =  $(this).parent().find("input[name=comment]");
+            $comment.val(fn);
+            $comment.select();
+        });
+    </script>
+
+    <script>
+        $("button.fetch").click(function () {
+            var $btn = $(this);
+            var provider = $btn.data('provider');
+            $btn.addClass('spinner');
+
+            var params = {
+                'id': $btn.data('provider'),
+                'amount': $btn.data('amount'),
+                'date': $btn.data('date')
+            };
+
+            $.getJSON('/fetch.php', params , function (data) {
+                $btn.removeClass('spinner');
+                var sel = $btn.siblings('select');
+                sel.append($("<option>").attr('value', null).text('-- select --'));
+                $.each(data, function (k, v) {
+                    sel.append($("<option>").attr('value', k).text(v));
+                });
+            });
+        });
+
+        $("select.fetch").change(function () {
+            var $select = $(this);
+            var provider = $select.data('provider');
+
+            $select.addClass("spinner");
+            $.getJSON('/fetch.php?id=' + provider + '&invoice=' + this.value, function (data) {
+                $select.removeClass('spinner');
+                var $form = $select.siblings('form');
+                $form.find('input[name=comment]').val(data.fn);
+                $form.find('input[name=receipt_tmppath]').val(data.tmppath);
+            });
+        });
+    </script>
 {% endblock %}
