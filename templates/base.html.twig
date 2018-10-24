@@ -36,7 +36,7 @@
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 {% for m in months %}
-                                <a class="dropdown-item {{ m == month|date('Y-m') ? 'active' : '' }}" href="?month={{ m }}">{{ m }}</a>
+                                    <a class="dropdown-item {{ m == month|date('Y-m') ? 'active' : '' }}" href="{{ path('bank', {'month':m}) }}">{{ m }}</a>
                                 {% endfor %}
                             </div>
                             {% else %}
@@ -53,7 +53,7 @@
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 {#<a class="dropdown-item" href="#">Unsorted (x)</a>#}
                                 {% for m in months %}
-                                    <a class="dropdown-item {{ m == month|date('Y-m') ? 'active' : '' }}" href="{{ path('invoices') }}?month={{ m }}">{{ m }}</a>
+                                    <a class="dropdown-item {{ m == month|date('Y-m') ? 'active' : '' }}" href="{{ path('invoices', {'month':m}) }}">{{ m }}</a>
                                 {% endfor %}
                             </div>
                         {% else %}

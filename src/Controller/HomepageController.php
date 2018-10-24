@@ -10,7 +10,6 @@ use App\Legacy\Main;
 use App\Legacy\Utils;
 use App\Repository\TransactionRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Annotation\Route;
 
 class HomepageController extends AbstractController {
