@@ -1,124 +1,134 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <!-- Required meta tags -->
-        <meta charset="utf-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-        <!-- Optional JavaScript -->
-        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-filestyle/2.1.0/bootstrap-filestyle.min.js"></script>
-        {% block stylesheets %}{% endblock %}
-    </head>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-filestyle/2.1.0/bootstrap-filestyle.min.js"></script>
+    {% block stylesheets %}{% endblock %}
+</head>
 
-    <body>
+<body>
 
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="/">FindInvoice</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">FindInvoice</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item dropdown">
-                        {% if months is defined %}
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                💰 Bank
-                                {#({{ month | date('Y-m') }})#}
-                            </a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                {% for m in months %}
-                                    <a class="dropdown-item {{ m == month|date('Y-m') ? 'active' : '' }}" href="{{ path('bank', {'month':m}) }}">{{ m }}</a>
-                                {% endfor %}
-                            </div>
-                            {% else %}
-                                <a class="nav-link" href="{{ path('bank') }}" role="button">
-                                    Bank
-                                </a>
-                        {% endif %}
-                    </li>
-                    <li class="nav-item dropdown">
-                        {% if months is defined %}
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                🖺 Invoices
-                            </a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                {#<a class="dropdown-item" href="#">Unsorted (x)</a>#}
-                                {% for m in months %}
-                                    <a class="dropdown-item {{ m == month|date('Y-m') ? 'active' : '' }}" href="{{ path('invoices', {'month':m}) }}">{{ m }}</a>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            <a class="nav-link" href="{{ path('invoices') }}" role="button">
-                                🖺 Invoices
-                            </a>
-                        {% endif %}
-                    </li>
-                    <li class="nav-item dropdown">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item dropdown">
+                    {% if months is defined %}
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            🗘 Sync
+                            💰 Bank
+                            {#({{ month | date('Y-m') }})#}
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="{{ path('sync_bank') }}">Import Bank</a>
-                    </li>
+                            {% for m in months %}
+                                <a class="dropdown-item {{ m == month|date('Y-m') ? 'active' : '' }}"
+                                   href="{{ path('bank', {'month':m}) }}">{{ m }}</a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <a class="nav-link" href="{{ path('bank') }}" role="button">
+                            Bank
+                        </a>
+                    {% endif %}
+                </li>
+                <li class="nav-item dropdown">
+                    {% if months is defined %}
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            🖺 Invoices
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            {#<a class="dropdown-item" href="#">Unsorted (x)</a>#}
+                            {% for m in months %}
+                                <a class="dropdown-item {{ m == month|date('Y-m') ? 'active' : '' }}"
+                                   href="{{ path('invoices', {'month':m}) }}">{{ m }}</a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <a class="nav-link" href="{{ path('invoices') }}" role="button">
+                            🖺 Invoices
+                        </a>
+                    {% endif %}
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        🗘 Sync
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{{ path('sync_bank') }}">Import Bank</a>
+                        <a class="dropdown-item" href="{{ path('sync_bank_auto') }}">Sync Weboobank</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
 
-            </div>
-        </nav>
-    </header>
+<style>
+    .bg-red {
+        background-color: #f2dede;
+    }
 
-    <style>
-        .bg-red{
-            background-color: #f2dede;
+    .bg-green {
+        background-color: #dff0d8;
+    }
+
+    .font-red {
+        color: #a94442;
+    }
+
+    .font-green {
+        color: #3c763d;
+    }
+
+    @keyframes spinner {
+        to {
+            transform: rotate(360deg);
         }
-        .bg-green{
-            background-color: #dff0d8;
-        }
+    }
 
-        .font-red{
-            color: #a94442;
-        }
+    .spinner {
+        animation: spinner .6s linear infinite;
+    }
+</style>
 
-        .font-green{
-            color: #3c763d;
-        }
+<style>
+    .example-wrapper {
+        margin: 1em auto;
+        max-width: 800px;
+        width: 95%;
+        font: 18px/1.5 sans-serif;
+    }
 
-        @keyframes spinner {
-            to {transform: rotate(360deg);}
-        }
-
-        .spinner {
-            animation: spinner .6s linear infinite;
-        }
-    </style>
-
-    <style>
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
-
-        .example-wrapper code {
-            background: #F5F5F5;
-            padding: 2px 6px;
-        }
-    </style>
+    .example-wrapper code {
+        background: #F5F5F5;
+        padding: 2px 6px;
+    }
+</style>
 
 
-    <main role="main">
-        {% block body %}{% endblock %}
-    </main>
+<main role="main">
+    {% block body %}{% endblock %}
+</main>
 
-        {% block javascripts %}{% endblock %}
-    </body>
+{% block javascripts %}{% endblock %}
+</body>
 </html>

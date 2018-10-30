@@ -46,7 +46,7 @@ class Utils {
      * Removes special characters and underscore to be able to get a nice filename
      * Underscore is removed because used by that tool to codify invoices
      */
-    public static function cleanNameToFilename($s){
+    public static function cleanNameToFilename($s) {
         return str_replace(['/', '_',], ['-', '-'], $s);
     }
 
@@ -59,7 +59,7 @@ class Utils {
         $rows = [];
         if (($handle = fopen($path, "r")) !== FALSE) {
             while (($data = fgetcsv($handle, null, $delimiter)) !== FALSE) {
-                $rows[]= $data;
+                $rows[] = $data;
             }
             fclose($handle);
         }
@@ -73,7 +73,7 @@ class Utils {
     public static function file_put_contents_csv(array $rows, $path, $delimiter = ',') {
         $fp = fopen($path, 'w');
         foreach ($rows as $row) {
-            fputcsv($fp, (array) $row, $delimiter);
+            fputcsv($fp, (array)$row, $delimiter);
         }
         fclose($fp);
     }
@@ -90,7 +90,7 @@ class Utils {
 
     public static function file_put_contents_csv_header(array $objects, $path, $delimiter = ',') {
         $keys = array_keys((array)$objects[0]);
-        self::file_put_contents_csv(array_merge([$keys],$objects), $path, $delimiter);
+        self::file_put_contents_csv(array_merge([$keys], $objects), $path, $delimiter);
     }
 
     /**
@@ -110,4 +110,30 @@ class Utils {
         return $orows;
     }
 
+    static public function ini_encode($value, $has_sections = FALSE) {
+        $content = "";
+        if ($has_sections) {
+            foreach ($value as $key => $elem) {
+                $content .= "[" . $key . "]\n";
+                foreach ($elem as $key2 => $elem2) {
+                    if (is_array($elem2)) {
+                        for ($i = 0; $i < count($elem2); $i++) {
+                            $content .= $key2 . "[] = " . $elem2[$i] . "\n";
+                        }
+                    } else if ($elem2 == "") $content .= $key2 . " = \n";
+                    else $content .= $key2 . " = " . $elem2 . "\n";
+                }
+            }
+        } else {
+            foreach ($value as $key => $elem) {
+                if (is_array($elem)) {
+                    for ($i = 0; $i < count($elem); $i++) {
+                        $content .= $key . "[] = \"" . $elem[$i] . "\"\n";
+                    }
+                } else if ($elem == "") $content .= $key . " = \n";
+                else $content .= $key . " = \"" . $elem . "\"\n";
+            }
+        }
+        return $content;
+    }
 }

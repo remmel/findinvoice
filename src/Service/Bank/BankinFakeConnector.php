@@ -5,10 +5,18 @@
  * Time: 12:49
  */
 
-namespace App\Legacy;
+namespace App\Service\Bank;
 
 
-class FakeBankin implements IBank {
+use App\Legacy\Utils;
+
+class BankinFakeConnector implements IBank {
+
+    private $file;
+
+    public function __construct($file) {
+        $this->file = $file;
+    }
 
     /**
      * Returns the list of transaction for a specific month
@@ -16,7 +24,8 @@ class FakeBankin implements IBank {
      * @return Transaction[]
      */
     public function transactions(\DateTime $month) {
-        $rows = Utils::file_get_contents_csv_header(__DIR__ . '/tmp_exportbank/tmp_bankin.csv');
+        //__DIR__ . '/tmp_exportbank/tmp_bankin.csv'
+        $rows = Utils::file_get_contents_csv_header($this->file);
 
         $oTransactions = [];
         foreach ($rows as $row) {

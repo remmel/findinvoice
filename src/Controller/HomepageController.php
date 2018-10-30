@@ -2,14 +2,16 @@
 
 namespace App\Controller;
 
-use App\Entity\Transaction;
 use App\Legacy\DbBankin;
 use App\Legacy\FileAdapterFilesystem;
-use App\Legacy\FileAdapterGoogleDrive;
 use App\Legacy\Main;
 use App\Legacy\Utils;
 use App\Repository\TransactionRepository;
+use App\Service\Bank\CsvBankConnector;
+use App\Service\Bank\WeboobBankConnector;
+use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class HomepageController extends AbstractController {
@@ -32,8 +34,9 @@ class HomepageController extends AbstractController {
     /**
      * @Route("/", name="bank", methods={"GET"})
      */
-    public function index() {
-        $month = Main::selectedMonth($_GET['month']);
+    public function index(Request $r) {
+        $month = $this->getMonth($r->query->get('month'));
+
         list($transactions, $orphanFiles) = $this->main->reconciliation($this->bank, $month);
         return $this->render('homepage/index.html.twig', [
             'months' => Main::listMonths(),
@@ -43,12 +46,22 @@ class HomepageController extends AbstractController {
     }
 
     /**
+     * Process the month query. If don't exists use the current month
+     * @param $queryMonth iso date eg : 2018-12
+     * @return DateTime
+     */
+    public function getMonth($queryMonth) {
+        $currentMonth = (new DateTime())->modify('first day of this month');
+        return isset($queryMonth) ? new DateTime($queryMonth) : $currentMonth;
+    }
+
+    /**
      * @Route("/", name="bank_post", methods={"POST"})
      */
     public function upload() {
         $month = Main::selectedMonth($_GET['month']);
-        $action = isset($_REQUEST['action'])?$_REQUEST['action']:'';
-        if($action === 'upload') {
+        $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
+        if ($action === 'upload') {
             $this->main->handleUpload($month);
         } elseif ($action === 'delete') {
             $this->fileAdapter->remove($_POST['id']);
@@ -61,15 +74,15 @@ class HomepageController extends AbstractController {
      */
     public function view() {
         $id = $_GET['id'];
-        $path = $_ENV['FILEADAPTER_FS_FOLDER'].$id;
+        $path = $_ENV['FILEADAPTER_FS_FOLDER'] . $id;
 
         //for security reason : to avoid being able to see all file of system
-        if(Utils::contains($id, '..')) die('cannot contain ".." char');
-        if(!file_exists($path)) die("file $path doesnt exist");
+        if (Utils::contains($id, '..')) die('cannot contain ".." char');
+        if (!file_exists($path)) die("file $path doesnt exist");
 
         $contentType = mime_content_type($path);
 
-        header('Content-Type: '.$contentType);
+        header('Content-Type: ' . $contentType);
         echo file_get_contents($path);
     }
 
@@ -89,14 +102,14 @@ class HomepageController extends AbstractController {
     }
 
     /**
-     * @Route("/sync/bank", name="sync_bank", methods={"GET"})
+     * @Route("/sync/bank/manual", name="sync_bank", methods={"GET"})
      */
     public function sync() {
-        return $this->render('homepage/syncbank.html.twig');
+        return $this->render('homepage/syncbank_import.html.twig');
     }
 
     /**
-     * @Route("/sync/bank", name="sync_bank_post", methods={"POST"})
+     * @Route("/sync/bank/manual", name="sync_bank_post", methods={"POST"})
      */
     public function syncPost() {
         if (isset($_FILES['file'])) {
@@ -105,35 +118,8 @@ class HomepageController extends AbstractController {
             $ext = $path_info['extension'];
 
             if ($ext == 'CSV') {
-                $tmp = tempnam(sys_get_temp_dir(), 'tmp_upload.csv');
-                $content = file_get_contents($tmp_name);
-                $content = utf8_encode($content);
-                file_put_contents($tmp, $content);
-                $rows = Utils::file_get_contents_csv($tmp, ';');
-                unlink($tmp);
-
-                for ($i = 0; $i < 11; $i++) //skip first 10 lines (credit agricole)
-                    $header = array_shift($rows);
-                $assoc = Utils::arrayToAssoc($rows, $header);
-
-                $transactionsImported = [];
-                foreach ($assoc as $t) {
-                    if (!isset($t->Libellé) || !isset($t->{'Crédit Euros'})) continue;
-                    $ot = new Transaction();
-                    $d = \DateTime::createFromFormat('d/m/Y', $t->Date);
-                    if (!$d) {
-                        die('Err Convert date :' . $t->Date);
-                    }
-                    $ot->date = $d->format('Y-m-d');
-                    $ot->description = trim($t->Libellé);
-
-                    $credit = (float)str_replace(',', '.', $t->{'Crédit Euros'});
-                    $debit = (float)str_replace(',', '.', $t->{'Débit Euros'});
-
-                    $ot->amount = $credit + $debit * -1;
-                    $transactionsImported[] = $ot;
-                }
-                $transactionsImported = array_reverse($transactionsImported);
+                $b = new CsvBankConnector('creditagricole', $tmp_name);
+                $transactionsImported = $b->transactions();
 
                 $transRepo = new TransactionRepository();
                 $transactionsDb = $transRepo->findAll();
@@ -143,5 +129,34 @@ class HomepageController extends AbstractController {
                 return $this->redirectToRoute('sync_bank');
             }
         }
+    }
+
+    /**
+     * @Route("/sync/bank/auto/weboob", name="sync_bank_auto")
+     */
+    public function syncAuto(Request $r) {
+
+        $banks = WeboobBankConnector::getBanks();
+        $transactionsImported = [];
+
+        if ($r->isMethod('post')) {
+            $login = $r->request->get('login');
+            $passord = $r->request->get('password');
+            $bank = $r->request->get('bank');
+
+            $weboobConnector = new WeboobBankConnector($bank, $login,$passord);
+
+            $transactionsImported = $weboobConnector->transactions(null);
+
+            $transRepo = new TransactionRepository();
+            $transactionsDb = $transRepo->findAll();
+
+            $transRepo->merge($transactionsDb, $transactionsImported);
+        }
+
+        return $this->render('homepage/syncbank_weboob_config.html.twig', [
+            'banks' => $banks,
+            'transactions' => $transactionsImported
+        ]);
     }
 }

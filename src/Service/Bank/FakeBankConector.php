@@ -4,7 +4,7 @@
  * Date: 12/07/18
  * Time: 17:40
  */
-namespace App\Legacy;
+namespace App\Service\Bank;
 
 
 class FakeBankConector implements IBank {

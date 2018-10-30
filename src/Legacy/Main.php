@@ -125,16 +125,6 @@ class Main {
     }
 
     /**
-     * Process the month query. If don't exists use the current month
-     * @param $queryMonth iso date eg : 2018-12
-     * @return DateTime
-     */
-    public static function selectedMonth(&$queryMonth) {
-        $currentMonth = (new DateTime())->modify('first day of this month');
-        return isset($queryMonth) ? new DateTime($queryMonth) : $currentMonth;
-    }
-
-    /**
      * Returns the list of month as ISO string (YYYY-MM)
      * @return string[]
      */

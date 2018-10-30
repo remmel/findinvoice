@@ -38,13 +38,14 @@ GDrive
 
 ### Banking API
 
-- [Weeboob](http://weboob.org/applications/boobank) : OPENSOURCE
+- [Weeboob](http://weboob.org/applications/boobank) : OPENSOURCE  
   config: `weboob-config-qt` / accounts: `boobank list -f csv` get all transactions: `boobank history 0123456789@cragr -f json`
 - [Bankin](https://docs.bridgeapi.io/docs) : $ - Free sandbox for testing purpose - Bankin is used https://docs.bridgeapi.io/docs
   You will need to create an account https://bridgeapi.io/dashboard/signin if you install that project on your server.  
 - [Budget-Insight](https://www.budget-insight.com/budgea-api) : $ - Also collecting documents for many providers
 - [Linxo](https://www.linxo.com/api-linxo-connect/) - $$
 - [OpenBankProject](api.openbankproject.com) : OPENSOURCE - only german banks
+- [SoBank](http://www.sobank.fr/) : $ - EBICS
 - https://www.linkedin.com/pulse/complete-whos-who-banking-apis-prateek-sanjay/
 
 ### Alternatives
@@ -52,10 +53,13 @@ GDrive
 - [IPaidThat](http://ipaidthat.io)
 - [Tiime](https://www.tiime.fr/)
 - [ReceiptBank](https://www.receipt-bank.com)
+- [Azopio](https://app.azopio.com/)
 
 ## Features
 - Read the invoiced stored (FileSystem; GoogleDrive)
-- Import transactions from Credit Agricole CSV file
+- Import transactions  
+  - Automatically (Weboob)  
+  - CSV  
 
 ## Next features
 - Handle cloud drive (✓Google Drive; DropBox)
@@ -71,3 +75,9 @@ GDrive
 exiftool -Subject=TOTAL:12.00,CURRENCY:EUR,VAT:2.00,DATE:2018-10-03,COMPANY=ACME, INVOICE_F-201809-207.pdf
 pdftk INVOICE_F-201809-207.p
 df dump_data
+
+## Problems
+- fetch invoices
+- OCR invoices
+- store metadata in invoices
+- fetch transactions (EBICS vs scrapping)

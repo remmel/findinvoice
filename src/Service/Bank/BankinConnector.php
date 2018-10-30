@@ -5,10 +5,12 @@
  * Time: 01:27
  */
 
-namespace App\Legacy;
+namespace App\Service\Bank;
 
 
-class Bankin implements IBank {
+use App\Legacy\IBank;
+
+class BankinConnector implements IBank {
     protected $token = null;
     protected $email = null;
     protected $password = null;
@@ -22,9 +24,9 @@ class Bankin implements IBank {
         return $this->token;
     }
 
-    public function __construct() {
-        $this->email = $_SESSION['email'];
-        $this->password = $_SESSION['password'];
+    public function __construct($email, $password) {
+        $this->email = $email;
+        $this->password = $password;
     }
 
     /**
@@ -40,7 +42,7 @@ class Bankin implements IBank {
                 ]),
             CURLOPT_POST => 1,
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_HTTPHEADER => ["Bankin-Version: 2016-01-18"]
+            CURLOPT_HTTPHEADER => ["BankinConnector-Version: 2016-01-18"]
         ]);
         return json_decode($content);
     }
@@ -59,7 +61,7 @@ class Bankin implements IBank {
                 ]),
             CURLOPT_POST => 1,
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_HTTPHEADER => ["Bankin-Version: 2016-01-18"]
+            CURLOPT_HTTPHEADER => ["BankinConnector-Version: 2016-01-18"]
         ]);
         return json_decode($content);
     }
@@ -75,7 +77,7 @@ class Bankin implements IBank {
                     'client_secret' => BANKIN_API_SECRET,
                 ]),
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_HTTPHEADER => ["Bankin-Version: 2016-01-18", "Authorization: Bearer $token"]
+            CURLOPT_HTTPHEADER => ["BankinConnector-Version: 2016-01-18", "Authorization: Bearer $token"]
         ]);
         return json_decode($content);
         //curl "https://sync.bankin.com/v2/items/add/url?client_id=21ca2fbcb0094f789ff2c835d4c22425&client_secret=kFybYHDCUZuIAOA2GJvq3onySLykrYbdA7JYUJVAs7Xl8Ss5lsJg5U9DQJeVhHJv" \
@@ -91,7 +93,7 @@ class Bankin implements IBank {
                     'client_secret' => BANKIN_API_SECRET,
                 ]),
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_HTTPHEADER => ["Bankin-Version: 2016-01-18", "Authorization: Bearer $token"]
+            CURLOPT_HTTPHEADER => ["BankinConnector-Version: 2016-01-18", "Authorization: Bearer $token"]
         ]);
         if (!strpos($content, 'resources')) die($content);
         return json_decode($content)->resources;
@@ -111,7 +113,7 @@ class Bankin implements IBank {
                     'client_secret' => BANKIN_API_SECRET,
                 ]),
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_HTTPHEADER => ["Bankin-Version: 2016-01-18", "Authorization: Bearer $token"]
+            CURLOPT_HTTPHEADER => ["BankinConnector-Version: 2016-01-18", "Authorization: Bearer $token"]
         ]);
         $btransactions = array_reverse(json_decode($content)->resources);
 
@@ -140,7 +142,7 @@ class Bankin implements IBank {
                     'client_secret' => BANKIN_API_SECRET,
                 ]),
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_HTTPHEADER => ["Bankin-Version: 2016-01-18", "Authorization: Bearer $token"]
+            CURLOPT_HTTPHEADER => ["BankinConnector-Version: 2016-01-18", "Authorization: Bearer $token"]
         ]);
         return json_decode($content);
     }
