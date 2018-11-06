@@ -21,8 +21,10 @@ class FileAdapterFilesystem implements IFileAdapter {
      * @inheritdoc
      * @return File[]
      */
-    public function files(\DateTime $date) {
+    public function files(\DateTime $date) : array {
         $folder = self::getSubfolder($date);
+
+        if(!file_exists($folder)) return [];
         $files = scandir($folder);
 
         $relativeFolder = substr($folder, strlen($this->rootFolder));
@@ -45,6 +47,10 @@ class FileAdapterFilesystem implements IFileAdapter {
      */
     public function upload(\DateTime $month, $tmp, $newName) {
         $dir = self::getSubfolder($month);
+
+        if(!file_exists($dir)) {
+            mkdir($dir);
+        }
 
         $destination = $dir.$newName;
 

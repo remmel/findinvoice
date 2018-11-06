@@ -9,6 +9,7 @@ namespace App\Service\Bank;
 
 
 use App\Legacy\Utils;
+use App\Legacy\IBank;
 
 class BankinFakeConnector implements IBank {
 

@@ -58,9 +58,9 @@ class HomepageController extends AbstractController {
     /**
      * @Route("/", name="bank_post", methods={"POST"})
      */
-    public function upload() {
-        $month = Main::selectedMonth($_GET['month']);
-        $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
+    public function upload(Request $r) {
+        $month = $this->getMonth($r->query->get('month'));
+        $action = $r->request->get('action');
         if ($action === 'upload') {
             $this->main->handleUpload($month);
         } elseif ($action === 'delete') {
@@ -89,8 +89,8 @@ class HomepageController extends AbstractController {
     /**
      * @Route("/invoices", name="invoices")
      */
-    public function invoices() {
-        $month = Main::selectedMonth($_GET['month']);
+    public function invoices(Request $r) {
+        $month = $this->getMonth($r->query->get('month'));
 //        $this->fileAdapter->authenticateIfNeeded();
         $files = $this->fileAdapter->files($month);
 

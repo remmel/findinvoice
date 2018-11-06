@@ -19,7 +19,7 @@ class Main {
 //        'Ovh' => FetchOvhSoap::class,
         'Google *svcsapps' => 'https://mail.google.com/mail/u/1/#search/from%3Apayments-noreply%40google.com',
         'Google*cloud' => 'https://console.cloud.google.com/billing/',
-        'Google *adws210617042' => 'https://adwords.google.fr/um/identity?dst=/um/Billing/Home#th',
+        'Google *ads' => 'https://ads.google.com/aw/billing/summary',
         'Facebk *' => 'https://business.facebook.com/ads/manager/billing/transactions/',
 //        'facebook ad perso'	=> 'https://www.facebook.com/ads/manager/billing/transactions/',
         'Microsoft *bing Ads Msbill' =>	'https://azure.bingads.microsoft.com/cc/Billing/History',
@@ -63,6 +63,7 @@ class Main {
             if(Utils::startsWith($f->name, '.')) continue; //ignore file beginning with dot
             $nameNoExt = pathinfo($f->name, PATHINFO_FILENAME);
             $parts = explode('_', $nameNoExt);
+            if(count($parts) < 2) continue;
             $key = $parts[0] . '_' . $parts[2];
             if(!isset($assocFiles[$key])) $assocFiles[$key] = [];
             $assocFiles[$key][] = $f;
