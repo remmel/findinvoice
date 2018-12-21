@@ -21,23 +21,30 @@ class FileAdapterFilesystem implements IFileAdapter {
      * @inheritdoc
      * @return File[]
      */
-    public function files(\DateTime $date) : array {
-        $folder = self::getSubfolder($date);
-
-        if(!file_exists($folder)) return [];
-        $files = scandir($folder);
-
-        $relativeFolder = substr($folder, strlen($this->rootFolder));
+    public function files(?\DateTime $date) : array {
+        $folders = [];
+        if($date) {
+            $folder = self::getSubfolder($date);
+            if(!file_exists($folder)) return [];
+            $folders = [$folder];
+        } else {
+            $folders = $this->listSubfolder();
+        }
 
         $oFiles = [];
-        foreach ($files as $f) {
-            if ($f == '.' || $f == '..') continue;
-            $oFile = new File();
-            $oFile->name = $f;
-            $oFile->id = $relativeFolder . $f;
-            $oFile->viewlink = '/viewlocalfile.php?id=' . urlencode($oFile->id);
+        foreach ($folders as $folder) {
+            $files = scandir($folder);
+            $relativeFolder = substr($folder, strlen($this->rootFolder));
 
-            $oFiles[] = $oFile;
+            foreach ($files as $f) {
+                if ($f == '.' || $f == '..') continue;
+                $oFile = new File();
+                $oFile->name = $f;
+                $oFile->id = $relativeFolder . $f;
+                $oFile->viewlink = '/viewlocalfile.php?id=' . urlencode($oFile->id);
+
+                $oFiles[] = $oFile;
+            }
         }
         return $oFiles;
     }
@@ -71,6 +78,15 @@ class FileAdapterFilesystem implements IFileAdapter {
     protected function getSubfolder(\DateTime $date) {
         $d = $date->format('Y-m'); //201804
         return $this->rootFolder . "/$d/";
+    }
+
+    protected function listSubfolder() : array{
+        $folders = [];
+        foreach (scandir($this->rootFolder) as $f) {
+            if(strlen($f) == 7) //TODO REGEX
+                $folders[] =  $this->rootFolder . "/$f/";
+        }
+        return $folders;
     }
 
     /**

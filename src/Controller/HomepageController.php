@@ -18,10 +18,13 @@ class HomepageController extends AbstractController {
     private $bank;
     private $fileAdapter;
     private $main;
+    private $tRepo;
 
     public function __construct() {
         $this->bank = new DbBankin();
         $this->fileAdapter = new FileAdapterFilesystem();
+
+        $this->tRepo = new TransactionRepository();
 
 //        $session = new Session();
 //        if(!$session->isStarted()) $session->start();
@@ -36,13 +39,21 @@ class HomepageController extends AbstractController {
      */
     public function index(Request $r) {
         $month = $this->getMonth($r->query->get('month'));
+        $q = $r->query->get('q');
+//        $transactionsDb = $this->tRepo->findAll();
 
-        list($transactions, $orphanFiles) = $this->main->reconciliation($this->bank, $month);
+        list($transactions, $orphanFiles) = $this->main->reconciliation($this->bank, $month, $q);
         return $this->render('homepage/index.html.twig', [
             'months' => Main::listMonths(),
             'month' => $month,
-            'transactions' => $transactions
+            'transactions' => array_reverse($transactions)
         ]);
+    }
+
+
+    private function findInvoices(array $transaction) {
+
+
     }
 
     /**
@@ -51,7 +62,7 @@ class HomepageController extends AbstractController {
      * @return DateTime
      */
     public function getMonth($queryMonth) {
-        $currentMonth = (new DateTime())->modify('first day of this month');
+        $currentMonth = null; //(new DateTime())->modify('first day of this month');
         return isset($queryMonth) ? new DateTime($queryMonth) : $currentMonth;
     }
 

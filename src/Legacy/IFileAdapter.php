@@ -14,7 +14,7 @@ interface IFileAdapter {
      * @param \DateTime $date
      * @return File[]
      */
-    public function files(\DateTime $date);
+    public function files(?\DateTime $date);
 
     /**
      * Upload a new file the subfolder

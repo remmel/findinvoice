@@ -111,7 +111,7 @@ class FileAdapterGoogleDrive implements IFileAdapter {
      * 1) Search for folder with specific month (eg named '2018-05') in folder defined in parameters
      * 2) List files into that subfolder
      */
-    public function files(\DateTime $date) {
+    public function files(?\DateTime $date) {
         $folderIdMonth = $this->getSubfolder($date);
 
         $gfiles = $this->drive->files->listFiles([

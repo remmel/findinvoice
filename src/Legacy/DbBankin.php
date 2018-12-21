@@ -20,14 +20,14 @@ class DbBankin implements IBank {
      * @param \DateTime $month
      * @return Transaction[]
      */
-    public function transactions(\DateTime $month) {
+    public function transactions(?\DateTime $month) {
         $transactionRepo = new TransactionRepository();
 
         $transactionsDb = $transactionRepo->findAll();
 
         $transactionsView = [];
         foreach ($transactionsDb as $tDb) {
-            if(substr($tDb->date, 0, 7) != $month->format('Y-m')) continue;
+            if($month && substr($tDb->date, 0, 7) != $month->format('Y-m')) continue;
             $tView = new Transaction();
             $tView->id = $tDb->id;
             $tView->date = $tDb->date;

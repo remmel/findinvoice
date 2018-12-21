@@ -30,7 +30,8 @@ class Main {
         'Lespace - Poissonnie' => 'https://poissonniers.espace.link/gestion/depot-de-garantie',
         'Fiverr' => 'https://mail.google.com/mail/u/1/#search/from%3A(invoices%40fiverr.com)',
         'Scaleway' => 'https://cloud.scaleway.com/#/billing',
-        'Cdiscount' => 'https://clients.cdiscount.com/Order/OrdersTracking.html'
+        'Cdiscount' => 'https://clients.cdiscount.com/Order/OrdersTracking.html',
+        'Google *gsuite' => 'https://admin.google.com/comparabus.com/AdminHome' //payments-noreply@google.com
     ];
 
     const FIRST_MONTH = '2017-07';
@@ -56,14 +57,14 @@ class Main {
      * Currenlty the key to link bank row with receipt is the DATE_AMOUNT.
      * TODO Handle if same amount twice the same day.
      */
-    public function reconciliation(IBank $bank, \DateTime $month) {
+    public function reconciliation(IBank $bank, ?\DateTime $month, ?string $q) {
         $files = $this->fileAdapter->files($month);
         $assocFiles = [];
         foreach ($files as $f) {
             if(Utils::startsWith($f->name, '.')) continue; //ignore file beginning with dot
             $nameNoExt = pathinfo($f->name, PATHINFO_FILENAME);
             $parts = explode('_', $nameNoExt);
-            if(count($parts) < 2) continue;
+            if(count($parts) < 3) continue;
             $key = $parts[0] . '_' . $parts[2];
             if(!isset($assocFiles[$key])) $assocFiles[$key] = [];
             $assocFiles[$key][] = $f;
@@ -71,7 +72,8 @@ class Main {
 
         $transactions = $bank->transactions($month);
         //add info for each transaction
-        foreach ($transactions as $t) {
+        foreach ($transactions as $id => $t) {
+            if($q && strpos(strtolower($t->description), strtolower($q)) === false) unset($transactions[$id]);
             $t->upload = self::filename($t);
             $key = $t->date . '_' . number_format(abs($t->amount), 2,'.', '');
 
