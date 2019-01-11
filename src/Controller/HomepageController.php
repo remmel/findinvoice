@@ -12,6 +12,7 @@ use App\Service\Bank\WeboobBankConnector;
 use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Annotation\Route;
 
 class HomepageController extends AbstractController {
@@ -50,12 +51,6 @@ class HomepageController extends AbstractController {
         ]);
     }
 
-
-    private function findInvoices(array $transaction) {
-
-
-    }
-
     /**
      * Process the month query. If don't exists use the current month
      * @param $queryMonth iso date eg : 2018-12
@@ -90,11 +85,7 @@ class HomepageController extends AbstractController {
         //for security reason : to avoid being able to see all file of system
         if (Utils::contains($id, '..')) die('cannot contain ".." char');
         if (!file_exists($path)) die("file $path doesnt exist");
-
-        $contentType = mime_content_type($path);
-
-        header('Content-Type: ' . $contentType);
-        echo file_get_contents($path);
+        return $this->file($path, null, ResponseHeaderBag::DISPOSITION_INLINE);
     }
 
     /**

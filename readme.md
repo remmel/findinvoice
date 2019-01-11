@@ -4,10 +4,14 @@ Tool to easier the collect of invoices from the bank details (bank reconciliatio
 
 ## Getting Started
 
-`git clone git@github.com:remmel/findinvoice.git`
+`git clone git@github.com:remmel/findinvoice.git`  
 `cd findinvoice`  
 `composer install`  
-`bin/console server:run`
+`bin/console server:run`  
+
+### Setup Weboob
+`sudo apt-get install weboob weboob-qt`  
+`weboob-config-qt`  # select the right module. Keep others fields empty (no need to fill account number, password...)
 
 ## Structure
 
@@ -54,6 +58,7 @@ GDrive
 - [Tiime](https://www.tiime.fr/)
 - [ReceiptBank](https://www.receipt-bank.com)
 - [Azopio](https://app.azopio.com/)
+- [Wave](https://waveapps.com)
 
 ## Features
 - Read the invoiced stored (FileSystem; GoogleDrive)
@@ -70,6 +75,7 @@ GDrive
 - Store in csv db
 - Read the transactions (Bankin API)  
 - Add metadata to file
+- Integrate Shine bank : [Shine API](https://developers.shine.fr/) (Typeform filled; scope = bank:transactions:read)
 
 ### Metadata to pdf
 exiftool -Subject=TOTAL:12.00,CURRENCY:EUR,VAT:2.00,DATE:2018-10-03,COMPANY=ACME, INVOICE_F-201809-207.pdf
