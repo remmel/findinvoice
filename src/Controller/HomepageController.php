@@ -146,7 +146,7 @@ class HomepageController extends AbstractController {
             $passord = $r->request->get('password');
             $bank = $r->request->get('bank');
 
-            $weboobConnector = new WeboobBankConnector($bank, $login,$passord);
+            $weboobConnector = new WeboobBankConnector($bank, $login, $passord);
 
             $transactionsImported = $weboobConnector->transactions(null);
 
