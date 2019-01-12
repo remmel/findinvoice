@@ -1,0 +1,4 @@
+[bugtraq]
+  url = https://github.com/remmel/findinvoice/issues/%BUGID%
+  loglinkregex = "#\\d+"
+  logregex = \\d+
