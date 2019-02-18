@@ -31,7 +31,9 @@ class Main {
         'Fiverr' => 'https://mail.google.com/mail/u/1/#search/from%3A(invoices%40fiverr.com)',
         'Scaleway' => 'https://cloud.scaleway.com/#/billing',
         'Cdiscount' => 'https://clients.cdiscount.com/Order/OrdersTracking.html',
-        'Google *gsuite' => 'https://admin.google.com/comparabus.com/AdminHome' //payments-noreply@google.com
+        'Google *gsuite' => 'https://admin.google.com/comparabus.com/AdminHome', //payments-noreply@google.com
+        'LE COMPOSE PRO' => 'https://www.credit-agricole.fr/ca-paris/professionnel/operations/documents/edocuments.html',
+        'AIRASIA' => 'https://taxinvoice.airasia.com/'
     ];
 
     const FIRST_MONTH = '2017-07';
@@ -180,7 +182,7 @@ class Main {
 
     public static function findHelp($description) {
         foreach (self::HELP as $words => $link) {
-            if(Utils::contains($description, $words)) {
+            if(Utils::contains(strtolower($description), strtolower($words))) {
                 return $link;
             }
         }

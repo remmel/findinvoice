@@ -7,7 +7,7 @@ use App\Legacy\FileAdapterFilesystem;
 use App\Legacy\Main;
 use App\Legacy\Utils;
 use App\Repository\TransactionRepository;
-use App\Service\Bank\CsvBankConnector;
+use App\Service\Bank\OfxBankConnector;
 use App\Service\Bank\WeboobBankConnector;
 use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -117,19 +117,20 @@ class HomepageController extends AbstractController {
         if (isset($_FILES['file'])) {
             $tmp_name = $_FILES['file']['tmp_name'];
             $path_info = pathinfo($_FILES['file']['name']);
-            $ext = $path_info['extension'];
+            $ext = strtolower($path_info['extension']);
 
-            if ($ext == 'CSV') {
-                $b = new CsvBankConnector('creditagricole', $tmp_name);
-                $transactionsImported = $b->transactions();
+            if ($ext != 'csv' && $ext != 'ofx') die('ext not handled');
 
-                $transRepo = new TransactionRepository();
-                $transactionsDb = $transRepo->findAll();
+//                $b = new CsvBankConnector($tmp_name);
+            $b = new OfxBankConnector($tmp_name);
+            $transactionsImported = $b->transactions();
 
-                $transRepo->merge($transactionsDb, $transactionsImported);
+            $transRepo = new TransactionRepository();
+            $transactionsDb = $transRepo->findAll();
 
-                return $this->redirectToRoute('sync_bank');
-            }
+            $transRepo->merge($transactionsDb, $transactionsImported);
+
+            return $this->redirectToRoute('sync_bank');
         }
     }
 

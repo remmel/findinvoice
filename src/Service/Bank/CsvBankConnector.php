@@ -14,7 +14,7 @@ use App\Legacy\Utils;
 class CsvBankConnector {
     protected $file;
 
-    public function __construct($bank, $file) {
+    public function __construct($file) {
         $this->file = $file;
     }
 
